@@ -96,12 +96,21 @@ class LupaHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("Access-Control-Allow-Origin", "https://miriamnaho25-cmyk.github.io")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
         self.wfile.write(body)
 
     def route(self):
         return self.path.split("?", 1)[0].rstrip("/") or "/"
 
+    def do_OPTIONS(self):
+        self.send_response(204)
+      self.send_header("Access-Control-Allow-Origin", "https://miriamnaho25-cmyk.github.io")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
     def do_GET(self):
         raw_path = self.path.split("?", 1)[0]
         route = self.route()
@@ -164,9 +173,9 @@ class LupaHandler(SimpleHTTPRequestHandler):
 
 
 def main():
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 3000
+    port = int(os.environ.get("PORT", sys.argv[1] if len(sys.argv) > 1 else 3000))
     os.makedirs(DATA_DIR, exist_ok=True)
-    server = ThreadingHTTPServer(("127.0.0.1", port), LupaHandler)
+    server = ThreadingHTTPServer(("0.0.0.0", port), LupaHandler)
     print("Lupa UABCS -> http://localhost:%d" % port)
     print("Encuesta   -> http://localhost:%d/encuesta" % port)
     print("API stats  -> http://localhost:%d/api/encuestas/stats" % port)
