@@ -1,0 +1,723 @@
+
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Iniciar Sesión - Lupa DASC</title>
+
+    <!-- TAILWIND CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FONTAWESOME -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- COLORES ORIGINALES LUPA DASC -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        uabcs: {
+                            gold: '#D4AF37',
+                            blue: '#002B49',
+                            lightBlue: '#1B4D7E',
+                            accent: '#E6B000',
+                            bgLight: '#F8FAFC'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* ACCESIBILIDAD */
+        .high-contrast {
+            background-color: #000 !important;
+            color: #ffff00 !important;
+        }
+
+        .high-contrast .login-card {
+            background-color: #111 !important;
+            color: #fff !important;
+            border: 2px solid #ffff00 !important;
+        }
+
+        .high-contrast .login-card h1,
+        .high-contrast .login-card p,
+        .high-contrast .login-card label {
+            color: #ffff00 !important;
+        }
+
+        @font-face {
+            font-family: 'OpenDyslexic';
+            src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.woff') format('woff');
+        }
+
+        .font-dyslexic-mode,
+        .font-dyslexic-mode * {
+            font-family: 'OpenDyslexic', Arial, sans-serif !important;
+        }
+
+        *:focus-visible {
+            outline: 3px solid #D4AF37 !important;
+            outline-offset: 3px !important;
+        }
+    </style>
+
+</head>
+
+<body id="main-body"
+      class="bg-slate-50 min-h-screen flex flex-col text-slate-800">
+
+    <!-- PANEL DE ACCESIBILIDAD -->
+    <aside class="bg-uabcs-blue text-white py-2 px-4 shadow-md">
+
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+
+            <div class="flex items-center gap-2">
+
+                <i class="fa-solid fa-universal-access text-uabcs-gold"></i>
+
+                <span class="font-bold text-sm">
+                    Panel de Accesibilidad DASC
+                </span>
+
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+
+                <button onclick="adjustFontSize(-1)"
+                        class="bg-uabcs-lightBlue px-3 py-1 rounded text-sm hover:bg-sky-700"
+                        aria-label="Disminuir tamaño de letra">
+                    A-
+                </button>
+
+                <button onclick="resetFontSize()"
+                        class="bg-uabcs-lightBlue px-3 py-1 rounded text-sm hover:bg-sky-700"
+                        aria-label="Restablecer tamaño de letra">
+                    A
+                </button>
+
+                <button onclick="adjustFontSize(1)"
+                        class="bg-uabcs-lightBlue px-3 py-1 rounded text-sm hover:bg-sky-700"
+                        aria-label="Aumentar tamaño de letra">
+                    A+
+                </button>
+
+                <button onclick="toggleDyslexicFont()"
+                        class="bg-uabcs-lightBlue px-3 py-1 rounded text-sm hover:bg-sky-700"
+                        id="btn-dyslexic"
+                        aria-pressed="false">
+
+                    <i class="fa-solid fa-font mr-1"></i>
+                    Fuente Dislexia
+                </button>
+
+                <button onclick="toggleHighContrast()"
+                        class="bg-uabcs-lightBlue px-3 py-1 rounded text-sm hover:bg-sky-700"
+                        id="btn-contrast"
+                        aria-pressed="false">
+
+                    <i class="fa-solid fa-circle-half-stroke mr-1"></i>
+                    Alto Contraste
+                </button>
+
+            </div>
+        </div>
+    </aside>
+
+    <!-- ENCABEZADO -->
+    <header class="bg-white shadow-md border-b-4 border-uabcs-gold">
+
+        <div class="max-w-7xl mx-auto px-4 py-4">
+
+            <div class="flex justify-between items-center gap-4">
+
+                <a href="index.html"
+                   class="flex items-center gap-3">
+
+                    <div class="bg-uabcs-blue text-uabcs-gold w-12 h-12 rounded-full flex items-center justify-center border-2 border-uabcs-gold">
+
+                        <i class="fa-solid fa-magnifying-glass text-xl"></i>
+
+                    </div>
+
+                    <div>
+
+                        <span class="text-xl md:text-2xl font-extrabold text-uabcs-blue">
+                            LUPA <span class="text-uabcs-gold">UABCS</span>
+                        </span>
+
+                        <p class="text-xs text-slate-500">
+                            Plataforma Estudiantil Inclusiva
+                        </p>
+
+                    </div>
+                </a>
+
+                <a href="index.html"
+                   class="text-uabcs-blue font-semibold hover:text-uabcs-gold transition text-sm">
+
+                    <i class="fa-solid fa-arrow-left mr-2"></i>
+                    Regresar al inicio
+
+                </a>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-grow flex items-center justify-center px-4 py-12">
+
+        <div class="login-card bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
+
+            <!-- CABECERA DEL FORMULARIO -->
+            <div class="bg-uabcs-blue text-white text-center px-8 py-8 border-b-4 border-uabcs-gold">
+
+                <div class="bg-uabcs-gold text-uabcs-blue w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+
+                    <i class="fa-solid fa-user-lock"></i>
+
+                </div>
+
+                <h1 class="text-3xl font-extrabold mb-2">
+                    Lupa DASC
+                </h1>
+
+                <p id="auth-page-title" class="text-slate-200">
+                    Iniciar sesión
+                </p>
+
+            </div>
+
+            <!-- FORMULARIO -->
+            <div class="p-8">
+
+                <form id="login-form" novalidate>
+
+                    <!-- CORREO INSTITUCIONAL -->
+                    <div class="mb-6">
+
+                        <label for="usuario"
+                               class="block text-uabcs-blue font-bold text-sm mb-2">
+
+                            <i class="fa-solid fa-envelope mr-1"></i>
+                            Correo institucional
+
+                        </label>
+
+                        <div class="flex items-center border-2 border-slate-300 rounded-xl overflow-hidden focus-within:border-uabcs-gold transition">
+
+                            <input type="email"
+                                   id="usuario"
+                                   name="usuario"
+                                   placeholder="usuario@alu.uabcs.mx"
+                                   autocomplete="username"
+                                   spellcheck="false"
+                                   autocapitalize="none"
+                                   required
+                                   class="w-full min-w-0 px-4 py-3 outline-none bg-white text-slate-800 text-sm">
+
+                        </div>
+
+                        <p class="text-xs text-slate-500 mt-2">
+                            <i class="fa-solid fa-circle-info mr-1"></i>
+                            Estudiantes: @alu.uabcs.mx. Administradores: @uabcs.mx.
+                        </p>
+
+                        <p id="correo-error"
+                           class="hidden text-red-600 text-xs mt-2 font-semibold"
+                           role="alert">
+                        </p>
+
+                    </div>
+
+                    <!-- CONTRASEÑA -->
+                    <div class="mb-3">
+
+                        <div class="flex justify-between items-center mb-2">
+
+                            <label for="password"
+                                   class="text-uabcs-blue font-bold text-sm">
+
+                                <i class="fa-solid fa-lock mr-1"></i>
+                                Contraseña
+                            </label>
+
+                            <a href="#" id="reset-password-link"
+                               class="text-xs text-uabcs-blue hover:text-uabcs-gold font-semibold hover:underline">
+
+                                ¿Olvidaste tu contraseña?
+                            </a>
+
+                        </div>
+
+                        <div class="flex items-center border-2 border-slate-300 rounded-xl overflow-hidden focus-within:border-uabcs-gold">
+
+                            <input type="password"
+                                   id="password"
+                                   name="password"
+                                   placeholder="Ingresa tu contraseña"
+                                   autocomplete="current-password"
+                                   required
+                                   class="w-full min-w-0 px-4 py-3 outline-none text-slate-800 text-sm">
+
+                            <button type="button"
+                                    onclick="togglePassword()"
+                                    id="toggle-password"
+                                    class="px-4 py-3 text-slate-500 hover:text-uabcs-blue"
+                                    aria-label="Mostrar contraseña">
+
+                                <i class="fa-solid fa-eye" id="eye-icon"></i>
+
+                            </button>
+
+                        </div>
+
+                        <p id="password-error"
+                           class="hidden text-red-600 text-xs mt-2 font-semibold"
+                           role="alert">
+                        </p>
+
+                    </div>
+
+                    <!-- ERROR GENERAL -->
+                    <div id="login-error"
+                         class="hidden bg-red-50 border border-red-300 text-red-700 rounded-lg p-3 text-sm mb-5"
+                         role="alert">
+                    </div>
+
+                    <!-- BOTÓN INICIAR SESIÓN -->
+                    <button type="submit"
+                            id="login-submit"
+                            class="w-full bg-uabcs-blue hover:bg-uabcs-lightBlue text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-2 mt-6">
+
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span id="login-submit-label">Iniciar sesión</span>
+                    </button>
+
+                    <button type="button"
+                            id="auth-mode-toggle"
+                            onclick="toggleAuthMode()"
+                            class="w-full text-uabcs-blue font-semibold text-sm mt-4 hover:underline">
+                        ¿No tienes cuenta? Crear una cuenta
+                    </button>
+
+                </form>
+
+                <!-- AVISO DE SEGURIDAD -->
+                <div class="bg-sky-50 rounded-xl p-4 mt-6 border border-sky-100">
+
+                    <p class="text-xs text-slate-600 text-center leading-relaxed">
+
+                        <i class="fa-solid fa-shield-halved text-uabcs-blue mr-1"></i>
+
+                        Usa tu correo institucional. El registro de estudiantes acepta
+                        <strong class="text-uabcs-blue">@alu.uabcs.mx</strong>; las cuentas de administrador
+                        se crean desde el panel de Supabase.
+
+                    </p>
+
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-uabcs-blue text-white py-5 border-t-4 border-uabcs-gold">
+
+        <div class="max-w-7xl mx-auto px-4 text-center">
+
+            <p class="text-sm font-semibold">
+                LUPA DASC
+            </p>
+
+            <p class="text-xs text-slate-300 mt-1">
+                Plataforma Estudiantil Inclusiva
+            </p>
+
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+
+        const DOMINIO_ESTUDIANTE = '@alu.uabcs.mx';
+        const DOMINIO_ADMINISTRADOR = '@uabcs.mx';
+
+        const form = document.getElementById('login-form');
+        const usuarioInput = document.getElementById('usuario');
+        const passwordInput = document.getElementById('password');
+
+        const correoError = document.getElementById('correo-error');
+        const passwordError = document.getElementById('password-error');
+        const loginError = document.getElementById('login-error');
+        const submitButton = document.getElementById('login-submit');
+        const submitLabel = document.getElementById('login-submit-label');
+        const authPageTitle = document.getElementById('auth-page-title');
+        const authModeToggle = document.getElementById('auth-mode-toggle');
+        const resetPasswordLink = document.getElementById('reset-password-link');
+        let isSignUpMode = new URLSearchParams(window.location.search).get('registro') === '1';
+        const authHashParams = new URLSearchParams(window.location.hash.slice(1));
+        const authType = authHashParams.get('type');
+        const isRecoveryMode = authType === 'recovery';
+        const isInviteMode = authType === 'invite';
+        let supabaseClient;
+
+        function getSupabaseClient() {
+            const config = window.LUPA_SUPABASE_CONFIG;
+
+            if (!window.supabase) {
+                throw new Error('No se pudo cargar la librería de Supabase. Revisa tu conexión a internet e inténtalo de nuevo.');
+            }
+
+            if (!config || !config.url || !config.publishableKey ||
+                config.url.indexOf('TU_PROJECT_REF') !== -1 ||
+                config.publishableKey.indexOf('TU_CLAVE_PUBLICA') !== -1) {
+                throw new Error('Falta configurar la URL y la clave pública de Supabase en supabase-config.js.');
+            }
+
+            if (!supabaseClient) {
+                supabaseClient = window.supabase.createClient(config.url, config.publishableKey);
+            }
+
+            return supabaseClient;
+        }
+
+        // LIMPIAR MENSAJES DE ERROR
+        function limpiarErrores() {
+
+            correoError.classList.add('hidden');
+            passwordError.classList.add('hidden');
+            loginError.classList.add('hidden');
+
+            correoError.textContent = '';
+            passwordError.textContent = '';
+            loginError.textContent = '';
+        }
+
+        // MOSTRAR ERROR
+        function mostrarError(elemento, mensaje) {
+
+            elemento.textContent = mensaje;
+            elemento.classList.remove('hidden');
+        }
+
+        function mostrarAviso(mensaje, esError) {
+            loginError.textContent = mensaje;
+            loginError.classList.remove(
+                'hidden', 'bg-red-50', 'border-red-300', 'text-red-700',
+                'bg-emerald-50', 'border-emerald-300', 'text-emerald-800'
+            );
+            loginError.classList.add(
+                esError ? 'bg-red-50' : 'bg-emerald-50',
+                esError ? 'border-red-300' : 'border-emerald-300',
+                esError ? 'text-red-700' : 'text-emerald-800'
+            );
+        }
+
+        function renderAuthMode() {
+            submitLabel.textContent = isSignUpMode ? 'Crear cuenta' : 'Iniciar sesión';
+            authModeToggle.textContent = isSignUpMode
+                ? '¿Ya tienes cuenta? Iniciar sesión'
+                : '¿No tienes cuenta? Crear una cuenta';
+            passwordInput.autocomplete = isSignUpMode ? 'new-password' : 'current-password';
+            usuarioInput.placeholder = isSignUpMode
+                ? 'usuario@alu.uabcs.mx'
+                : 'usuario@alu.uabcs.mx o admin@uabcs.mx';
+        }
+
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            renderAuthMode();
+            limpiarErrores();
+        }
+
+        if (isRecoveryMode || isInviteMode) {
+            authPageTitle.textContent = isInviteMode ? 'Configura tu cuenta' : 'Restablece tu contraseña';
+            submitLabel.textContent = isInviteMode ? 'Crear contraseña' : 'Guardar nueva contraseña';
+            passwordInput.placeholder = isInviteMode ? 'Crea una contraseña segura' : 'Nueva contraseña';
+            passwordInput.autocomplete = 'new-password';
+            authModeToggle.hidden = true;
+            resetPasswordLink.hidden = true;
+
+            if (isInviteMode || isRecoveryMode) {
+                usuarioInput.closest('.mb-6').hidden = true;
+            }
+
+            try {
+                getSupabaseClient();
+            } catch (error) {
+                mostrarAviso(mensajeErrorAuth(error), true);
+            }
+        } else if (isSignUpMode) {
+            renderAuthMode();
+        }
+
+        if (authHashParams.get('error_code') === 'otp_expired') {
+            mostrarAviso(
+                'El enlace de invitación venció o ya se utilizó. Solicita que te envíen una invitación nueva.',
+                true
+            );
+        }
+
+        function mensajeErrorAuth(error) {
+            const message = (error && error.message ? error.message : '').toLowerCase();
+
+            if (message.includes('invalid login credentials')) {
+                return 'Correo o contraseña incorrectos.';
+            }
+            if (message.includes('email not confirmed')) {
+                return 'Primero confirma tu correo institucional desde el enlace que te enviamos.';
+            }
+            if (message.includes('user already registered')) {
+                return 'Ese correo ya tiene una cuenta. Inicia sesión o usa la opción de recuperar contraseña.';
+            }
+
+            return error && error.message
+                ? error.message
+                : 'No se pudo completar la solicitud. Inténtalo de nuevo.';
+        }
+
+        // VALIDAR CORREO INSTITUCIONAL
+        function validarCorreo() {
+
+            let correo = usuarioInput.value.trim().toLowerCase();
+
+            if (correo === '') {
+
+                mostrarError(
+                    correoError,
+                    'Ingresa tu correo institucional.'
+                );
+
+                return null;
+            }
+
+            if (!correo.includes('@')) {
+                correo += DOMINIO_ESTUDIANTE;
+            }
+
+            const partes = correo.split('@');
+            const correoEstudiante = correo.endsWith(DOMINIO_ESTUDIANTE);
+            const correoAdministrador = correo.endsWith(DOMINIO_ADMINISTRADOR);
+            const patron = /^[a-z0-9._%+-]+$/;
+
+            if (partes.length !== 2 ||
+                !patron.test(partes[0]) ||
+                (!correoEstudiante && !correoAdministrador) ||
+                (isSignUpMode && !correoEstudiante)) {
+
+                mostrarError(
+                    correoError,
+                    isSignUpMode
+                        ? 'El registro de estudiantes requiere un correo @alu.uabcs.mx.'
+                        : 'Usa un correo @alu.uabcs.mx o @uabcs.mx.'
+                );
+
+                return null;
+            }
+
+            usuarioInput.value = correo;
+
+            return correo;
+        }
+
+        // VALIDAR FORMULARIO
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            limpiarErrores();
+
+            const passwordUpdateMode = isInviteMode || isRecoveryMode;
+            const correoCompleto = passwordUpdateMode ? null : validarCorreo();
+            const password = passwordInput.value;
+            if (!passwordUpdateMode && !correoCompleto) return;
+            if (!password) {
+                mostrarError(
+                    passwordError,
+                    'Ingresa tu contraseña.'
+                );
+                return;
+            }
+            if (isInviteMode && password.length < 8) {
+                mostrarError(passwordError, 'La contraseña debe tener al menos 8 caracteres.');
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-60', 'cursor-not-allowed');
+
+            try {
+                const client = getSupabaseClient();
+                const redirectTo = new URL('ticket.html', window.location.href).href;
+                const result = isRecoveryMode || isInviteMode
+                    ? await client.auth.updateUser({ password: password })
+                    : isSignUpMode
+                    ? await client.auth.signUp({
+                        email: correoCompleto,
+                        password: password,
+                        options: { emailRedirectTo: redirectTo }
+                    })
+                    : await client.auth.signInWithPassword({
+                        email: correoCompleto,
+                        password: password
+                    });
+
+                if (result.error) throw result.error;
+
+                if (isRecoveryMode) {
+                    mostrarAviso('Contraseña actualizada. Ya puedes usarla para iniciar sesión.', false);
+                    window.setTimeout(function() {
+                        window.location.assign('login.html');
+                    }, 1800);
+                } else if (isSignUpMode && !result.data.session) {
+                    mostrarAviso(
+                        'Cuenta creada. Revisa tu correo institucional y confirma la cuenta antes de iniciar sesión.',
+                        false
+                    );
+                } else {
+                    if (!result.data.user) {
+                        throw new Error('No se pudo verificar la sesión de la cuenta.');
+                    }
+
+                    const { data: profile, error: profileError } = await client
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', result.data.user.id)
+                        .single();
+
+                    if (profileError) {
+                        throw new Error(
+                            `No se pudo verificar tu perfil. Ejecuta primero supabase/schema.sql. ${profileError.message}`
+                        );
+                    }
+
+                    if (profile.role !== 'student' && profile.role !== 'admin') {
+                        throw new Error('El perfil no tiene un rol válido.');
+                    }
+
+                    window.location.assign(profile.role === 'admin' ? 'admin.html' : 'ticket.html');
+                }
+            } catch (error) {
+                mostrarAviso(mensajeErrorAuth(error), true);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+
+        });
+
+        resetPasswordLink.addEventListener('click', async function(event) {
+            event.preventDefault();
+            limpiarErrores();
+            const correoCompleto = validarCorreo();
+            if (!correoCompleto) return;
+
+            try {
+                const client = getSupabaseClient();
+                const redirectTo = new URL('login.html', window.location.href).href;
+                const { error } = await client.auth.resetPasswordForEmail(correoCompleto, { redirectTo });
+                if (error) throw error;
+
+                mostrarAviso(
+                    'Si existe una cuenta con ese correo, recibirás instrucciones para recuperar la contraseña.',
+                    false
+                );
+            } catch (error) {
+                mostrarAviso(mensajeErrorAuth(error), true);
+            }
+        });
+
+        // MOSTRAR / OCULTAR CONTRASEÑA
+        function togglePassword() {
+
+            const input = document.getElementById('password');
+            const icon = document.getElementById('eye-icon');
+            const button = document.getElementById('toggle-password');
+
+            if (input.type === 'password') {
+
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+                button.setAttribute('aria-label', 'Ocultar contraseña');
+
+            } else {
+
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+                button.setAttribute('aria-label', 'Mostrar contraseña');
+            }
+        }
+
+        // TAMAÑO DE LETRA
+        let fontSizeLevel = 0;
+
+        function aplicarTamanoFuente() {
+
+            const porcentaje = 100 + (fontSizeLevel * 12);
+
+            document.documentElement.style.fontSize =
+                porcentaje + '%';
+        }
+
+        function adjustFontSize(cambio) {
+
+            fontSizeLevel = Math.max(
+                -1,
+                Math.min(2, fontSizeLevel + cambio)
+            );
+
+            aplicarTamanoFuente();
+        }
+
+        function resetFontSize() {
+
+            fontSizeLevel = 0;
+            aplicarTamanoFuente();
+        }
+
+        // ALTO CONTRASTE
+        function toggleHighContrast() {
+
+            const body = document.body;
+            const button = document.getElementById('btn-contrast');
+
+            body.classList.toggle('high-contrast');
+
+            button.setAttribute(
+                'aria-pressed',
+                String(body.classList.contains('high-contrast'))
+            );
+        }
+
+        // FUENTE PARA DISLEXIA
+        function toggleDyslexicFont() {
+
+            const body = document.body;
+            const button = document.getElementById('btn-dyslexic');
+
+            body.classList.toggle('font-dyslexic-mode');
+
+            button.setAttribute(
+                'aria-pressed',
+                String(body.classList.contains('font-dyslexic-mode'))
+            );
+        }
+
+    </script>
+
+</body>
+</html>

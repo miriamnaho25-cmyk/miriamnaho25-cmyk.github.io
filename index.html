@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lupa UABCS - Voz, Reportes y Accesibilidad Estudiantil</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Supabase: cliente y configuración del proyecto (estadísticas de reportes) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <!-- EmailJS para enviar reportes por correo -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <!-- SweetAlert2 para alertas de la encuesta -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Custom CSS (style.css está junto a index.html) -->
+    <link rel="stylesheet" href="style.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        uabcs: {
+                            gold: '#D4AF37',
+                            blue: '#002B49',
+                            lightBlue: '#1B4D7E',
+                            accent: '#E6B000',
+                            bgLight: '#F8FAFC'
+                        }
+                    },
+                    fontFamily: {
+                        dyslexic: ['OpenDyslexic', 'Arial', 'sans-serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans transition-colors duration-200 min-h-screen flex flex-col" id="main-body">
+
+    <!-- BARRA SUPERIOR DE ACCESIBILIDAD -->
+    <aside aria-label="Herramientas de Accesibilidad" class="bg-uabcs-blue text-white text-sm py-2 px-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
+
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-universal-access text-uabcs-gold text-lg" aria-hidden="true"></i>
+                <span class="font-bold text-xs sm:text-sm">Panel de Accesibilidad DASC:</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2"> 
+
+                <div class="inline-flex rounded-md shadow-sm" role="group" aria-label="Ajustar tamaño de texto">
+                    <button onclick="adjustFontSize(-1)" class="px-2 py-1 text-xs bg-uabcs-lightBlue hover:bg-sky-700 rounded-l border border-slate-600 focus:z-10" title="Disminuir tamaño de texto" aria-label="Disminuir texto">A-</button>
+                    <button onclick="resetFontSize()" class="px-2 py-1 text-xs bg-uabcs-lightBlue hover:bg-sky-700 border-t border-b border-slate-600 focus:z-10" title="Restablecer tamaño de texto">A</button>
+                    <button onclick="adjustFontSize(1)" class="px-2 py-1 text-xs bg-uabcs-lightBlue hover:bg-sky-700 rounded-r border border-slate-600 focus:z-10" title="Aumentar tamaño de texto" aria-label="Aumentar texto">A+</button>
+                </div>
+
+                <button onclick="toggleHighContrast()" id="btn-contrast" class="px-3 py-1 text-xs bg-uabcs-lightBlue hover:bg-sky-700 rounded border border-slate-600 flex items-center space-x-1" aria-pressed="false">
+                    <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+                    <span class="hidden md:inline">Alto Contraste</span>
+                </button>
+
+                <button onclick="toggleDyslexicFont()" id="btn-dyslexic" class="px-3 py-1 text-xs bg-uabcs-lightBlue hover:bg-sky-700 rounded border border-slate-600 flex items-center space-x-1" aria-pressed="false">
+                    <i class="fa-solid fa-font" aria-hidden="true"></i>
+                    <span class="hidden md:inline">Modo Lectura Fácil</span>
+                </button>
+
+                <button onclick="readPageText()" id="btn-tts" class="px-3 py-1 text-xs bg-uabcs-gold text-uabcs-blue font-semibold hover:bg-yellow-400 rounded flex items-center space-x-1" aria-label="Leer contenido de la página con voz sintetizada">
+                    <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                    <span id="tts-btn-text">Escuchar Página</span>
+                </button>
+
+            </div>
+        </div>
+    </aside>
+
+    <!-- HEADER / NAVEGACIÓN PRINCIPAL -->
+    <header class="bg-white shadow-md border-b-4 border-uabcs-gold">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20 gap-3">
+
+                <!-- LOGO -->
+                <div class="flex items-center space-x-3">
+                    <a href="#inicio" class="flex items-center space-x-3 focus:outline-none" aria-label="Ir a la página principal de Lupa UABCS">
+                        <div class="bg-uabcs-blue text-uabcs-gold w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl shadow-inner border-2 border-uabcs-gold">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <span class="text-2xl font-extrabold tracking-tight text-uabcs-blue block leading-none">
+                                LUPA <span class="text-uabcs-gold">DASC</span>
+                            </span>
+                            <span class="text-xs text-slate-500 font-medium">Plataforma Estudiantil Inclusiva</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- MENÚ DESKTOP -->
+                <nav class="hidden lg:flex space-x-5 font-semibold text-slate-700 text-sm" aria-label="Navegación principal">
+                    <a href="#inicio" class="hover:text-uabcs-gold transition duration-150 py-2 border-b-2 border-transparent hover:border-uabcs-gold">Inicio</a>
+                    <a href="#servicios" class="hover:text-uabcs-gold transition duration-150 py-2 border-b-2 border-transparent hover:border-uabcs-gold">Servicios Gratis</a>
+                    <a href="#reportes" class="hover:text-uabcs-gold transition duration-150 py-2 border-b-2 border-transparent hover:border-uabcs-gold">Hacer Reporte</a>
+                    <a href="#estadisticas" class="hover:text-uabcs-gold transition duration-150 py-2 border-b-2 border-transparent hover:border-uabcs-gold">Estadísticas</a>
+                    <a href="/encuesta" class="hover:text-uabcs-gold transition duration-150 py-2 border-b-2 border-transparent hover:border-uabcs-gold">Encuesta</a>
+                    <a href="#inclusion" class="hover:text-uabcs-gold transition duration-150 py-2 border-b-2 border-transparent hover:border-uabcs-gold">Inclusión</a>
+                </nav>
+
+                <!-- BOTÓN INICIAR SESIÓN -->
+                <div class="flex items-center gap-3">
+                <!--
+                    <a href="login.html" class="inline-flex items-center justify-center space-x-2 bg-uabcs-blue hover:bg-uabcs-lightBlue text-white font-bold px-3 sm:px-5 py-3 rounded-lg border-2 border-uabcs-gold transition duration-200 shadow-md text-xs sm:text-sm whitespace-nowrap">
+                        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                        <span>Iniciar sesión</span>
+                    </a>
+                -->
+                    <!-- MENÚ HAMBURGUESA -->
+                    <div class="lg:hidden">
+                        <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 text-uabcs-blue hover:text-uabcs-gold focus:outline-none" aria-expanded="false" aria-controls="mobile-menu" aria-label="Abrir menú de navegación">
+                            <i class="fa-solid fa-bars text-2xl" id="menu-icon"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- MENÚ MÓVIL -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-slate-100 border-t border-slate-200 py-3 px-4 space-y-2 font-medium">
+            <a href="#inicio" onclick="toggleMobileMenu()" class="block py-2 px-3 hover:bg-uabcs-blue hover:text-white rounded-md">Inicio</a>
+            <a href="#servicios" onclick="toggleMobileMenu()" class="block py-2 px-3 hover:bg-uabcs-blue hover:text-white rounded-md">Servicios Gratuitos</a>
+            <a href="#reportes" onclick="toggleMobileMenu()" class="block py-2 px-3 hover:bg-uabcs-blue hover:text-white rounded-md">Crear Reporte o Sugerencia</a>
+            <a href="#estadisticas" onclick="toggleMobileMenu()" class="block py-2 px-3 hover:bg-uabcs-blue hover:text-white rounded-md">Estadísticas y Avances</a>
+            <a href="/encuesta" class="block py-2 px-3 hover:bg-uabcs-blue hover:text-white rounded-md">Contestar Encuesta</a>
+            <a href="#inclusion" onclick="toggleMobileMenu()" class="block py-2 px-3 hover:bg-uabcs-blue hover:text-white rounded-md">Espacio de Inclusión UABCS</a>
+        </div>
+    </header>
+
+    <!-- CARRUSEL -->
+    <section id="inicio" class="relative bg-uabcs-blue text-white overflow-hidden py-10 lg:py-16">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="relative rounded-2xl overflow-hidden shadow-2xl bg-slate-900 min-h-[380px] md:min-h-[420px] flex items-center">
+
+                <div id="carousel-container" class="w-full relative min-h-[380px] md:min-h-[420px]">
+
+                    <!-- SLIDE 1: Asesorías (asesorias.jpeg) -->
+                    <div class="carousel-slide absolute inset-0 w-full h-full flex flex-col justify-center p-8 md:p-12 bg-gradient-to-r from-uabcs-blue via-sky-950 to-slate-900 opacity-100 transition-opacity duration-700">
+                        <img src="images/asesorias.jpeg" alt="" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-r from-uabcs-blue/95 via-uabcs-blue/75 to-uabcs-blue/20"></div>
+                        <div class="max-w-2xl relative z-10">
+                            <span class="bg-uabcs-gold text-uabcs-blue text-xs font-black uppercase px-3 py-1 rounded-full tracking-wider mb-4 inline-block">Apoyo Estudiantil</span>
+                            <h1 class="text-3xl md:text-5xl font-black mb-4 text-white leading-tight">Psicología y Asesorías Academicas Gratuitas</h1>
+                            <p class="text-slate-200 text-base md:text-lg mb-6">Tu bienestar mental y tu rendimiento académico son nuestra prioridad. Accede a atención personalizada sin costo para ti.</p>
+                            <a href="#servicios" class="inline-flex items-center space-x-2 bg-uabcs-gold hover:bg-yellow-400 text-uabcs-blue font-bold px-6 py-3 rounded-lg transition duration-200 transform hover:-translate-y-0.5">
+                                <span>Conocer Servicios</span>
+                                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- SLIDE 2: Estadísticas (estadisticas.jpeg) -->
+                    <div class="carousel-slide absolute inset-0 w-full h-full flex flex-col justify-center p-8 md:p-12 bg-gradient-to-r from-teal-950 via-uabcs-blue to-slate-900 opacity-0 transition-opacity duration-700">
+                        <img src="images/estadisticas.jpeg" alt="" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-r from-uabcs-blue/95 via-uabcs-blue/75 to-uabcs-blue/20"></div>
+                        <div class="max-w-2xl relative z-10">
+                            <span class="bg-teal-400 text-teal-950 text-xs font-black uppercase px-3 py-1 rounded-full tracking-wider mb-4 inline-block">Transparencia Estudiantil</span>
+                            <h2 class="text-3xl md:text-5xl font-black mb-4 text-white leading-tight">Reporte Semanal y Seguimiento Institucional</h2>
+                            <p class="text-slate-200 text-base md:text-lg mb-6">Revisa el estado de la resolución de problemáticas en el campus. Desde mantenimiento hasta apoyo docente.</p>
+                            <a href="#estadisticas" class="inline-flex items-center space-x-2 bg-teal-400 hover:bg-teal-300 text-teal-950 font-bold px-6 py-3 rounded-lg transition duration-200">
+                                <span>Ver Estadísticas</span>
+                                <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- SLIDE 3: Misión y Voz (sugerencias.jpeg) -->
+                    <div class="carousel-slide absolute inset-0 w-full h-full flex flex-col justify-center p-8 md:p-12 bg-gradient-to-r from-indigo-950 via-uabcs-blue to-slate-900 opacity-0 transition-opacity duration-700">
+                        <img src="images/sugerencias.jpeg" alt="" class="absolute inset-0 w-full h-full object-cover object-[50%_30%]">
+                        <div class="absolute inset-0 bg-gradient-to-r from-uabcs-blue/95 via-uabcs-blue/75 to-uabcs-blue/20"></div>
+                        <div class="max-w-2xl relative z-10">
+                            <span class="bg-indigo-400 text-indigo-950 text-xs font-black uppercase px-3 py-1 rounded-full tracking-wider mb-4 inline-block">Misión y Voz</span>
+                            <h2 class="text-3xl md:text-5xl font-black mb-4 text-white leading-tight">Lupa DASC: Una Universidad para Todos</h2>
+                            <p class="text-slate-200 text-base md:text-lg mb-6">Espacio inclusivo diseñado para escuchar la voz de cada estudiante y mejorar la estadía en nuestro campus universitario.</p>
+                            <a href="#reportes" class="inline-flex items-center space-x-2 bg-indigo-400 hover:bg-indigo-300 text-indigo-950 font-bold px-6 py-3 rounded-lg transition duration-200">
+                                <span>Hacer una Sugerencia</span>
+                                <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- CONTROLES DEL CARRUSEL -->
+                <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white w-12 h-12 rounded-full flex items-center justify-center focus:outline-none" aria-label="Diapositiva anterior">
+                    <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                </button>
+
+                <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white w-12 h-12 rounded-full flex items-center justify-center focus:outline-none" aria-label="Diapositiva siguiente">
+                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </button>
+
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2" id="carousel-dots">
+                    <button onclick="goToSlide(0)" class="w-3 h-3 rounded-full bg-uabcs-gold" aria-label="Ir a diapositiva 1"></button>
+                    <button onclick="goToSlide(1)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white" aria-label="Ir a diapositiva 2"></button>
+                    <button onclick="goToSlide(2)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white" aria-label="Ir a diapositiva 3"></button>
+                </div>
+
+                <!-- MASCOTA FIJA SOBRE EL CARRUSEL (mascota.png junto a index.html) -->
+                <img src="images/mascota.png"
+                alt="Mascota oficial de la UABCS saludando con la señal de paz"
+                class="mascota-flotante hidden lg:block absolute bottom-0 right-20 h-44 xl:h-88 w-auto z-20 pointer-events-none drop-shadow-xl select-none">
+            </div>
+        </div>
+    </section>
+
+    <!-- OBJETIVO -->
+    <section class="py-12 bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+
+            <h2 class="text-3xl font-extrabold text-uabcs-blue mb-4">¿Cuál es el objetivo de Lupa DASC?</h2>
+
+            <p class="max-w-3xl mx-auto text-slate-600 text-lg leading-relaxed mb-8">
+                <strong>Lupa DASC</strong> es un canal directo, transparente e inclusivo creado por y para la comunidad universitaria. Buscamos visibilizar las necesidades del campus, acelerar la resolución de problemáticas y garantizar accesibilidad para todos los estudiantes.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-6 text-left">
+
+                <div class="p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-uabcs-gold text-3xl mb-3"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></div>
+                    <h3 class="font-bold text-lg text-uabcs-blue mb-2">1. Reporta y Sugiere</h3>
+                    <p class="text-slate-600 text-sm">Registra cualquier falla en instalaciones, aspectos académicos o sugerencias para el campus.</p>
+                </div>
+
+                <div class="p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-uabcs-gold text-3xl mb-3"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></div>
+                    <h3 class="font-bold text-lg text-uabcs-blue mb-2">2. Seguimiento en Tiempo Real</h3>
+                    <p class="text-slate-600 text-sm">Monitorea mediante estadísticas el estatus de los folios enviados a la administración.</p>
+                </div>
+
+                <div class="p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-uabcs-gold text-3xl mb-3"><i class="fa-solid fa-hand-holding-heart" aria-hidden="true"></i></div>
+                    <h3 class="font-bold text-lg text-uabcs-blue mb-2">3. Inclusión Universal</h3>
+                    <p class="text-slate-600 text-sm">Herramientas adaptadas a necesidades diversas: apoyo auditivo, visual, físico y emocional.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ENCUESTA ESTUDIANTIL (banner CTA a /encuesta) -->
+    <section id="encuesta" class="py-16 bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="bg-uabcs-blue text-white rounded-2xl shadow-xl border border-uabcs-lightBlue p-6 md:p-8 lg:p-10 flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+
+                <div class="hidden md:flex shrink-0 items-center justify-center w-16 h-16 rounded-full bg-white/10 border border-white/25 text-uabcs-gold text-2xl">
+                    <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>
+                </div>
+
+                <div class="flex-1">
+                    <span class="inline-block rounded-full bg-white/10 border border-white/25 px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-uabcs-gold">
+                        Diagnóstico Estudiantil
+                    </span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold mt-3 mb-2 leading-tight">
+                        ¿Quieres contarnos cómo vives el campus?
+                    </h2>
+                    <p class="text-slate-200 max-w-2xl">
+                        Contesta once preguntas sobre traslados, aulas, trámites, seguridad y ambiente. Tus respuestas alimentan las estadísticas públicas de esta página.
+                    </p>
+                    <ul class="flex flex-wrap gap-2 mt-4 text-sm" aria-label="Detalles de la encuesta">
+                        <li class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-3 py-1">
+                            <i class="fa-solid fa-circle-check text-uabcs-gold" aria-hidden="true"></i>
+                            <span>Es anónima</span>
+                        </li>
+                        <li class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-3 py-1">
+                            <i class="fa-solid fa-circle-check text-uabcs-gold" aria-hidden="true"></i>
+                            <span>Menos de 2 minutos</span>
+                        </li>
+                        <li class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-3 py-1">
+                            <i class="fa-solid fa-circle-check text-uabcs-gold" aria-hidden="true"></i>
+                            <span>Comentarios opcionales</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="shrink-0 w-full md:w-auto">
+                    <a href="/encuesta" class="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white text-uabcs-blue font-bold px-6 py-3.5 rounded-lg border border-white shadow-sm hover:bg-slate-100 transition duration-200 text-base">
+                        <span>Responder la encuesta</span>
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN DE REPORTES Y SUGERENCIAS -->
+    <section id="reportes" class="py-16 bg-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10 border border-slate-200">
+                <div class="border-b border-slate-200 pb-6 mb-6">
+                    <span class="text-xs uppercase tracking-widest text-uabcs-gold font-extrabold">Participación Estudiantil</span>
+                    <h2 class="text-3xl font-extrabold text-uabcs-blue mt-1">Buzón de Reportes y Sugerencias DASC</h2>
+                    <p class="text-slate-600 text-sm mt-2">Selecciona la categoría correspondiente y cuéntanos qué problema observas o qué podemos mejorar.</p>
+                </div>
+<form id="report-form" onsubmit="handleReportSubmit(event)" class="space-y-6" novalidate>
+                
+                    <div class="mb-5">
+                        <label for="nombre-estudiante" class="block font-bold mb-2">
+                            Nombre completo *
+                        </label>
+                        <input type="text" id="nombre-estudiante"
+                            class="w-full border rounded-lg p-3"
+                            placeholder="Ingresa tu nombre completo"
+                            required>
+                        <div id="nombre-error" role="alert" class="hidden mt-2 p-3 rounded-lg border border-red-300 bg-red-50 text-red-600"></div>
+                    </div>
+
+
+                    <div class="mb-5">
+                        <label for="correo-estudiante" class="block font-bold mb-2">
+                            Correo institucional estudiantil *
+                        </label>
+                        <div class="flex">
+                            <input type="text" id="correo-estudiante" 
+                                class="w-full border rounded-l-lg p-3"
+                                placeholder="Ej. juanpedro_23"
+                                required>
+                            <span class="border p-3 rounded-r-lg bg-gray-100 font-bold">
+                                @alu.uabcs.mx
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">
+                            Únicamente se permite el correo institucional estudiantil UABCS.
+                        </p>
+                        <div id="correo-error" role="alert" class="hidden mt-2 p-3 rounded-lg border border-red-300 bg-red-50 text-red-600"></div>
+                    </div>
+
+
+                    <div class="mb-5">
+                        <label for="carrera-estudiante" class="block font-bold mb-2">
+                            Carrera *
+                        </label>
+                        <select id="carrera-estudiante"
+                            class="w-full border rounded-lg p-3"
+                            required>
+                            <option value="">-- Selecciona tu carrera --</option>
+                            <option value="IDS">Ingeniería en Desarrollo de Software</option>
+                            <option value="ITC">Ingeniería en Tecnología Computacional</option>
+                            <option value="LTI">Licenciatura en Tecnologías de la Información</option>
+                            <option value="IC">Ingeniería en Ciberseguridad</option>
+                            <option value="IIA">Ingeniería en Inteligencia Artificial</option>
+                            <option value="LATI">Licenciatura en Administración de Tecnologías de la Información</option>
+                            <option value="otra">Otra</option>
+                        </select>
+                        <div id="carrera-error" role="alert" class="hidden mt-2 p-3 rounded-lg border border-red-300 bg-red-50 text-red-600"></div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label for="semestre-estudiante" class="block font-bold mb-2">
+                            Semestre *
+                        </label>
+                        <select id="semestre-estudiante"
+                            class="w-full border rounded-lg p-3"
+                            required>
+                            <option value="">-- Selecciona tu semestre --</option>
+                            <option value="1">1.º semestre</option>
+                            <option value="2">2.º semestre</option>
+                            <option value="3">3.º semestre</option>
+                            <option value="4">4.º semestre</option>
+                            <option value="5">5.º semestre</option>
+                            <option value="6">6.º semestre</option>
+                            <option value="7">7.º semestre</option>
+                            <option value="8">8.º semestre</option>
+                            <option value="9">9.º semestre</option>
+                            <option value="10">10.º semestre</option>
+                        </select>
+                        <div id="semestre-error" role="alert" class="hidden mt-2 p-3 rounded-lg border border-red-300 bg-red-50 text-red-600"></div>
+                    </div>
+
+                  
+                    <!-- Selección de Categoría -->
+                    <div>
+                        <label for="category" class="block text-sm font-bold text-slate-700 mb-2">Categoría del reporte / sugerencia *</label>
+                        <select id="category" required class="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-uabcs-blue focus:border-uabcs-blue bg-white text-slate-800">
+                            <option value="">-- Selecciona una categoría --</option>
+                            <option value="Infraestructura y Rampas">Infraestructura y Accesibilidad Física (Rampas, Elevadores)</option>
+                            <option value="Servicios de Salud y Psicología">Servicios de Salud / Apoyo Psicológico</option>
+                            <option value="Mantenimiento y Aulas">Mantenimiento de Aulas y Baños</option>
+                            <option value="Fallas Tecnológicas / Wi-Fi">Fallas de Internet / Equipo de Cómputo</option>
+                            <option value="Asesorías y Tutorías">Asesorías Académicas y Docencia</option>
+                            <option value="Seguridad y Convivencia">Seguridad y Convivencia Universitaria</option>
+                            <option value="Otra Sugerencia">Otra Sugerencia General</option>
+                        </select>
+                        <div id="categoria-error" role="alert" class="hidden mt-2 p-3 rounded-lg border border-red-300 bg-red-50 text-red-600"></div>
+                    </div>
+
+                    <!-- Tipo de Envío -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Tipo de Entrada *</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-slate-50">
+                                <input type="radio" name="report_type" value="Problemática" checked class="text-uabcs-blue focus:ring-uabcs-blue">
+                                <span class="ml-2 text-sm font-medium">Reportar Problemática</span>
+                            </label>
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-slate-50">
+                                <input type="radio" name="report_type" value="Sugerencia" class="text-uabcs-blue focus:ring-uabcs-blue">
+                                <span class="ml-2 text-sm font-medium">Propuesta / Sugerencia</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Descripción con soporte de dictado por voz -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="description" class="block text-sm font-bold text-slate-700">Detalle de tu reporte o sugerencia *</label>
+                            <button type="button" onclick="startVoiceDictation('description', 'dictation-btn')" id="dictation-btn" class="text-xs text-uabcs-blue bg-amber-100 hover:bg-amber-200 px-3 py-1 rounded-full font-semibold flex items-center space-x-1" title="Dictar por voz">
+                                <i class="fa-solid fa-microphone text-red-600" aria-hidden="true"></i>
+                                <span>Dictar con voz</span>
+                            </button>
+                        </div>
+                        <textarea id="description" rows="4" required placeholder="Describe de forma clara la situación, lugar específico dentro del campus y sugerencias para solucionarlo..." class="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-uabcs-blue focus:border-uabcs-blue text-slate-800"></textarea>
+                        <div id="descripcion-error" role="alert" class="hidden mt-2 p-3 rounded-lg border border-red-300 bg-red-50 text-red-600"></div>
+                    </div>
+                    <!-- Adjuntar imágenes del reporte -->
+                    <div class="mt-4">
+                        <label for="imagenes-reporte"
+                            class="block text-sm font-bold text-slate-700 mb-2">
+                            Adjuntar imágenes (Opcional)
+                        </label>
+
+                        <p class="text-sm text-slate-500 mb-3">
+                            Puedes adjuntar hasta 3 fotografías como evidencia.
+                        </p>
+
+                        <input
+                            type="file"
+                            id="imagenes-reporte"
+                            name="imagenes[]"
+                            accept="image/jpeg,image/png,image/webp"
+                            multiple
+                            onchange="mostrarImagenes(event)"
+                            class="w-full p-3 border border-slate-300 rounded-lg bg-white"
+                        >
+
+                        <p id="imagenes-error"
+                            class="hidden text-sm text-red-600 mt-2"
+                            role="alert">
+                        </p>
+
+                        <div id="vista-previa"
+                            class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                        </div>
+                    </div>
+
+                    <!-- Ubicación en Campus -->
+                    <div>
+                        <label for="location" class="block text-sm font-bold text-slate-700 mb-2">Área o Edificio del Campus (Opcional)</label>
+                        <input type="text" id="location" placeholder="Ej. Lab. Cómputo A, Edificio AD-46 ..." class="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-uabcs-blue focus:border-uabcs-blue text-slate-800">
+                    </div>
+
+                    <!-- Consulta de mapa de edificios DASC -->
+                    <div class="-mt-3">
+                        <button type="button" onclick="abrirMapaDASC()"
+                            class="inline-flex items-center gap-2 text-sm font-semibold text-uabcs-blue hover:underline focus:outline-none focus:ring-2 focus:ring-uabcs-gold rounded"
+                            aria-haspopup="dialog" aria-controls="modal-mapa-dasc">
+                            <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+                            ¿No sabes el nombre del edificio? Consulta la imagen
+                            <i class="fa-solid fa-up-right-and-down-left-from-center text-xs" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
+                    <!-- Botón de Envío -->
+                    <button type="submit" class="w-full bg-uabcs-blue hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition duration-200 text-lg flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                        <span>Enviar Reporte a Lupa DASC</span>
+                    </button>
+                </form>
+
+                <!-- Mensaje de confirmación del reporte -->
+                <div id="report-success-msg" class="hidden mt-6 p-4 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-lg flex items-start space-x-3" role="alert">
+                    <i class="fa-solid fa-circle-check text-2xl text-emerald-600 mt-0.5" aria-hidden="true"></i>
+                    <div>
+                        <h4 class="font-bold text-lg">¡Reporte recibido con éxito!</h4>
+                        <p class="text-sm">Se ha asignado el folio <strong>#UABCS-<span id="generated-folio">8492</span></strong>. Se agregará a las estadísticas semanales de seguimiento.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ESTADÍSTICAS -->
+    <section id="estadisticas" class="py-16 bg-white border-y border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-12">
+                <span class="text-xs uppercase tracking-widest text-uabcs-gold font-extrabold">Transparencia Universitaria</span>
+                <h2 class="text-3xl font-extrabold text-uabcs-blue mt-1">Estadísticas de Atención y Reportes Semanales</h2>
+                <p id="stats-description" class="text-slate-600 max-w-2xl mx-auto mt-2">Monitoreo de incidencias reportadas y su grado de resolución.</p>
+            </div>
+
+            <div id="stats-error" class="hidden mb-8 rounded-lg border border-amber-300 bg-amber-50 p-4 text-center text-sm text-amber-900" role="status" aria-live="polite"></div>
+
+            <!-- TARJETAS RESUMEN -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+
+                <div class="bg-slate-50 border-l-4 border-slate-500 p-6 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-slate-700 uppercase">Total de casos</p>
+                            <p class="text-3xl font-black text-slate-900 mt-1" id="stat-total">182</p>
+                        </div>
+                        <div class="bg-slate-200 text-slate-700 p-3 rounded-full">
+                            <i class="fa-solid fa-clipboard-list text-xl" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-2">Reportes recibidos</p>
+                </div>
+
+                <div class="bg-emerald-50 border-l-4 border-emerald-500 p-6 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-emerald-800 uppercase">Casos Resueltos</p>
+                            <p class="text-3xl font-black text-emerald-900 mt-1" id="stat-resueltos">142</p>
+                        </div>
+                        <div class="bg-emerald-200 text-emerald-800 p-3 rounded-full">
+                            <i class="fa-solid fa-check-double text-xl" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-emerald-700 mt-2">
+                        <span id="stat-eficiencia">78%</span> del total de casos
+                    </p>
+                </div>
+
+                <div class="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-amber-800 uppercase">En Proceso</p>
+                            <p class="text-3xl font-black text-amber-900 mt-1" id="stat-proceso">28</p>
+                        </div>
+                        <div class="bg-amber-200 text-amber-800 p-3 rounded-full">
+                            <i class="fa-solid fa-clock-rotate-left text-xl" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-amber-700 mt-2">Personal asignado e interviniendo</p>
+                </div>
+
+                <div class="bg-sky-50 border-l-4 border-uabcs-blue p-6 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-uabcs-blue uppercase">Pendientes de Revisión</p>
+                            <p class="text-3xl font-black text-uabcs-blue mt-1" id="stat-pendientes">12</p>
+                        </div>
+                        <div class="bg-sky-200 text-uabcs-blue p-3 rounded-full">
+                            <i class="fa-solid fa-envelope-open-text text-xl" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-2">En espera de revisión</p>
+                </div>
+
+            </div>
+
+            <!-- GRÁFICOS -->
+            <div class="grid lg:grid-cols-2 gap-8">
+
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-lg text-uabcs-blue mb-4 flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-column text-uabcs-gold" aria-hidden="true"></i>
+                        <span>Categorías de Problemáticas Reportadas</span>
+                    </h3>
+                    <div class="relative h-64">
+                        <canvas id="chartCategorias" aria-label="Gráfico de categorías reportadas" role="img"></canvas>
+                        <div id="chartCategoriasFallback" class="hidden space-y-2 overflow-y-auto" aria-label="Gráfico de categorías de demostración"></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-lg text-uabcs-blue mb-4 flex items-center space-x-2">
+                        <i class="fa-solid fa-pie-chart text-uabcs-gold" aria-hidden="true"></i>
+                        <span>Estatus General de Soluciones</span>
+                    </h3>
+                    <div class="relative h-64">
+                        <canvas id="chartEstatus" aria-label="Gráfico de estatus de soluciones" role="img"></canvas>
+                        <div id="chartEstatusFallback" class="hidden space-y-5 pt-4" aria-label="Gráfico de estatus de demostración"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="demo-cases" class="hidden mt-10" aria-live="polite">
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-bold text-uabcs-blue">Ejemplos de reportes y seguimiento</h3>
+                    <p class="text-sm text-slate-600 mt-1">Casos ficticios para mostrar cómo se vería el seguimiento; no corresponden a reportes reales.</p>
+                </div>
+                <div id="demo-case-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INCLUSIÓN: REQUIERE LOGIN -->
+    <section id="inclusion" class="py-16 bg-uabcs-blue text-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center justify-center bg-uabcs-gold text-uabcs-blue w-16 h-16 rounded-full text-2xl mb-4 shadow-lg">
+                    <i class="fa-solid fa-wheelchair" aria-hidden="true"></i>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-3">Campus Incluyente DASC </h2>
+                <p class="text-slate-200 max-w-2xl mx-auto text-base md:text-lg">
+                    ¿Padeces alguna discapacidad o necesitas adaptaciones específicas en el departamento del DASC? Dinos cómo podemos mejorar tu estadía universitaria.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/80 p-6 md:p-10 rounded-2xl border border-slate-700 shadow-2xl backdrop-blur-sm text-center">
+
+                <div class="text-uabcs-gold text-4xl mb-5">
+                    <i class="fa-solid fa-universal-access" aria-hidden="true"></i>
+                </div>
+
+                <h3 class="text-2xl font-extrabold text-white mb-4">Tu voz también construye un campus incluyente</h3>
+
+                <p class="text-slate-200 max-w-2xl mx-auto mb-6">
+                    Si necesitas una adaptación de accesibilidad o deseas proponer una mejora para el campus, puedes registrar tu solicitud mediante nuestro sistema de tickets.
+                </p>
+
+                <p class="text-uabcs-gold font-bold mb-7">
+                    ¿Necesitas alguna adaptación o tienes una propuesta? ¡Comparte tu sugerencia con nosotros!
+                </p>
+
+                <a href="#reportes" class="inline-flex items-center justify-center space-x-2 bg-uabcs-gold hover:bg-yellow-400 text-uabcs-blue font-bold py-3.5 px-6 rounded-xl shadow-lg transition duration-200 text-lg">
+                  <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                  <span>Enviar sugerencia</span>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICIOS GRATUITOS -->
+    <section id="servicios" class="py-16 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-12">
+                <span class="text-xs uppercase tracking-widest text-uabcs-gold font-extrabold">Red de Apoyo Gratuito</span>
+                <h2 class="text-3xl font-extrabold text-uabcs-blue mt-1">Servicios Estudiantiles Aliados</h2>
+                <p class="text-slate-600 max-w-2xl mx-auto mt-2">Aprovecha los programas gratuitos que la universidad tiene para apoyar tu trayectoria universitaria.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+
+                <!-- PSICOLOGÍA -->
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-200 flex flex-col justify-between hover:shadow-xl transition duration-300">
+                    <div>
+                        <div class="w-14 h-14 bg-pink-100 text-pink-600 rounded-2xl flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-brain" aria-hidden="true"></i>
+                        </div>
+                        <span class="text-xs font-bold text-pink-600 uppercase tracking-wider">100% Gratuito</span>
+                        <h3 class="text-xl font-bold text-uabcs-blue mt-1 mb-2">Atención Psicológica Estudiantil</h3>
+                        <p class="text-slate-600 text-sm mb-4">Orientación psicopedagógica, manejo del estrés, contención emocional y consultas individuales con profesionales de la salud mental.</p>
+                    </div>
+                    <button onclick="openModal('Servicio de Psicología Gratuita', 'Consulta con el área de Servicios Estudiantiles de la UABCS los requisitos y horarios disponibles.')" class="w-full text-center bg-slate-100 hover:bg-uabcs-blue hover:text-white font-bold py-2.5 px-4 rounded-lg transition duration-200 text-sm text-uabcs-blue flex items-center justify-center space-x-2">
+                        <span>Agendar Cita</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <!-- ASESORÍAS -->
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-200 flex flex-col justify-between hover:shadow-xl transition duration-300">
+                    <div>
+                        <div class="w-14 h-14 bg-blue-100 text-uabcs-blue rounded-2xl flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-book-open-reader" aria-hidden="true"></i>
+                        </div>
+                        <span class="text-xs font-bold text-uabcs-blue uppercase tracking-wider">Todas las áreas</span>
+                        <h3 class="text-xl font-bold text-uabcs-blue mt-1 mb-2">Tutorías y Asesorías Académicas</h3>
+                        <p class="text-slate-600 text-sm mb-4">Refuerza tus materias en matemáticas, programación, idiomas, redacción de tesis y preparación de exámenes con alumnos asesores y docentes.</p>
+                    </div>
+                    <button onclick="openModal('Asesorías Académicas UABCS', 'Consulta con tu departamento académico los horarios disponibles de asesorías y tutorías.')" class="w-full text-center bg-slate-100 hover:bg-uabcs-blue hover:text-white font-bold py-2.5 px-4 rounded-lg transition duration-200 text-sm text-uabcs-blue flex items-center justify-center space-x-2">
+                        <span>Ver Horarios</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <!-- BECAS -->
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-200 flex flex-col justify-between hover:shadow-xl transition duration-300">
+                    <div>
+                        <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+                        </div>
+                        <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Bienestar Estudiantil</span>
+                        <h3 class="text-xl font-bold text-uabcs-blue mt-1 mb-2">Becas y Apoyos Universitarios</h3>
+                        <p class="text-slate-600 text-sm mb-4">Información sobre convocatorias de alimentos, transporte accesible, becas alimenticias y condonación de inscripción.</p>
+                    </div>
+                    <button onclick="openModal('Becas e Inclusión UABCS', 'Visita la Coordinación de Servicios Estudiantiles o consulta las convocatorias vigentes en los canales oficiales de la universidad.')" class="w-full text-center bg-slate-100 hover:bg-uabcs-blue hover:text-white font-bold py-2.5 px-4 rounded-lg transition duration-200 text-sm text-uabcs-blue flex items-center justify-center space-x-2">
+                        <span>Consultar Requisitos</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-uabcs-blue text-white py-10 border-t-4 border-uabcs-gold mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+
+                <div class="flex items-center space-x-3">
+                    <div class="bg-uabcs-gold text-uabcs-blue w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="font-extrabold text-lg">LUPA UABCS</p>
+                        <p class="text-xs text-slate-300">Universidad Autónoma de Baja California Sur</p>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-300 text-center">
+                    Plataforma inclusiva con herramientas de accesibilidad | Por una educación libre, justa e incluyente.
+                </p>
+
+                <div class="flex space-x-4 text-lg text-uabcs-gold">
+                    <a href="https://www.uabcs.mx" target="_blank" rel="noopener noreferrer" class="hover:text-white" title="Sitio Oficial UABCS" aria-label="Sitio web oficial UABCS">
+                        <i class="fa-solid fa-globe"></i>
+                    </a>
+                    <a href="#inicio" class="hover:text-white" title="Ir arriba" aria-label="Volver al inicio">
+                        <i class="fa-solid fa-circle-arrow-up"></i>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL -->
+    <div id="info-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-2 border-uabcs-gold">
+
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xl font-bold" aria-label="Cerrar ventana">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 id="modal-title" class="text-xl font-extrabold text-uabcs-blue mb-3">Título</h3>
+            <p id="modal-body" class="text-slate-600 text-sm leading-relaxed mb-6">Contenido...</p>
+
+            <button onclick="closeModal()" class="w-full bg-uabcs-blue text-white font-bold py-2.5 rounded-lg hover:bg-slate-800">Entendido</button>
+
+        </div>
+    </div>
+
+    <!-- Ventana emergente: mapa de edificios DASC -->
+    <div id="modal-mapa-dasc" class="hidden fixed inset-0 z-[100] bg-black/70 p-4 sm:p-8 flex items-center justify-center"
+         role="dialog" aria-modal="true" aria-labelledby="titulo-mapa-dasc" onclick="if(event.target === this) cerrarMapaDASC()">
+        <div class="relative w-full max-w-5xl max-h-[85vh] bg-white rounded-xl shadow-2xl p-4 sm:p-6 overflow-auto">
+            <div class="flex items-center justify-between gap-4 mb-3">
+                <h3 id="titulo-mapa-dasc" class="text-lg font-bold text-uabcs-blue">Ubica tu edificio del DASC</h3>
+                <button id="cerrar-mapa-dasc" type="button" onclick="cerrarMapaDASC()"
+                    class="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-uabcs-blue text-white hover:bg-uabcs-lightBlue focus:ring-2 focus:ring-uabcs-gold"
+                    aria-label="Cerrar mapa" title="Cerrar mapa">
+                    <i class="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
+                </button>
+            </div>
+            <img src="images/edificiosDASC.jpeg" alt="Mapa de edificios del Departamento Académico de Sistemas Computacionales: Talleres, Poliforo, DSC-47, DSC-39 y AD-46, con referencias de aulas y laboratorios"
+                 class="w-full h-auto rounded-lg border border-slate-200">
+        </div>
+    </div>
+
+    <!-- JS (main.js está junto a index.html) -->
+    <script src="main.js"></script>
+    <script>
+       // Abrir y cerrar el mapa de edificios
+       let focoAnteriorMapaDASC = null;
+       function abrirMapaDASC() {
+           focoAnteriorMapaDASC = document.activeElement;
+           document.getElementById('modal-mapa-dasc').classList.remove('hidden');
+           document.body.style.overflow = 'hidden';
+           document.getElementById('cerrar-mapa-dasc').focus();
+       }
+       function cerrarMapaDASC() {
+           document.getElementById('modal-mapa-dasc').classList.add('hidden');
+           document.body.style.overflow = '';
+           if (focoAnteriorMapaDASC) focoAnteriorMapaDASC.focus();
+       }
+       document.addEventListener('keydown', function(event) {
+           if (event.key === 'Escape' && !document.getElementById('modal-mapa-dasc').classList.contains('hidden')) {
+               cerrarMapaDASC();
+           }
+       });
+
+      
+        async function handleReportSubmit(e) {
+            e.preventDefault();
+
+            const nombre = document.getElementById("nombre-estudiante").value.trim();
+            const correo = document.getElementById("correo-estudiante").value.trim();
+            const carrera = document.getElementById("carrera-estudiante").value;
+            const semestre = document.getElementById("semestre-estudiante").value;
+            const categoria = document.getElementById("category").value;
+            const descripcion = document.getElementById("description").value.trim();
+            const ubicacion = document.getElementById("location").value.trim();
+
+            const formulario = document.getElementById("report-form");
+            const botonEnviar = formulario.querySelector('button[type="submit"]');
+            const mensajeExito = document.getElementById("report-success-msg");
+            const errorImagenes = document.getElementById("imagenes-error");
+            const imagenes = document.getElementById("imagenes-reporte").files;
+
+            mensajeExito.classList.add("hidden");
+
+            // Limpiar errores anteriores
+            const errores = ["nombre", "correo", "carrera", "semestre", "categoria", "descripcion"];
+
+            errores.forEach(campo => {
+                const elemento = document.getElementById(campo + "-error");
+                elemento.textContent = "";
+                elemento.classList.add("hidden");
+            });
+
+            errorImagenes.textContent = "";
+            errorImagenes.classList.add("hidden");
+
+            let primerError = null;
+
+            function mostrarError(campo, mensaje) {
+                const elemento = document.getElementById(campo + "-error");
+                elemento.textContent = mensaje;
+                elemento.classList.remove("hidden");
+
+                if (!primerError) primerError = elemento;
+            }
+
+            // Validaciones del formulario
+            if (nombre === "") {
+                mostrarError("nombre", "¡Debes ingresar tu nombre completo!");
+            }
+
+            if (correo === "") {
+                mostrarError("correo", "¡Debes ingresar tu correo institucional!");
+            } else if (!/^[a-zA-Z0-9._%+-]+$/.test(correo)) {
+                mostrarError("correo", "¡Ingresa solo tu usuario, sin @alu.uabcs.mx!");
+            }
+
+            if (carrera === "") {
+                mostrarError("carrera", "¡Debes seleccionar tu carrera!");
+            }
+
+            if (semestre === "") {
+                mostrarError("semestre", "¡Debes seleccionar tu semestre!");
+            }
+
+            if (categoria === "") {
+                mostrarError("categoria", "¡Debes seleccionar una categoría!");
+            }
+
+            if (descripcion === "") {
+                mostrarError("descripcion", "¡Debes escribir el detalle de tu reporte!");
+            }
+
+            if (primerError) {
+                primerError.scrollIntoView({ behavior: "smooth", block: "center" });
+                return;
+            }
+
+            // Validar imágenes, aunque todavía no se envíen
+            if (
+                imagenes.length > 3 ||
+                Array.from(imagenes).some(archivo =>
+                    !["image/jpeg", "image/png", "image/webp"].includes(archivo.type) ||
+                    archivo.size > 5 * 1024 * 1024
+                )
+            ) {
+                errorImagenes.textContent =
+                    "Selecciona máximo 3 imágenes JPG, PNG o WEBP de hasta 5 MB cada una.";
+                errorImagenes.classList.remove("hidden");
+                errorImagenes.scrollIntoView({ behavior: "smooth", block: "center" });
+                return;
+            }
+
+            if (typeof emailjs === "undefined") {
+                alert("No se pudo cargar el servicio de correo. Revisa tu conexión.");
+                return;
+            }
+
+            // Generar folio
+            const folio = Math.floor(1000 + Math.random() * 9000);
+
+            // Datos que recibirá EmailJS
+            const datosReporte = {
+                folio: "UABCS-" + folio,
+                nombre: nombre,
+                correo: correo + "@alu.uabcs.mx",
+                carrera: carrera,
+                semestre: semestre,
+                categoria: categoria,
+                tipo: document.querySelector('input[name="report_type"]:checked').value,
+                descripcion: descripcion,
+                ubicacion: ubicacion || "No especificada"
+            };
+
+            // Evitar envíos duplicados
+            botonEnviar.disabled = true;
+            botonEnviar.innerText = "Enviando reporte...";
+            botonEnviar.classList.add("opacity-60", "cursor-not-allowed");
+
+            try {
+                // Enviar correo real
+                await emailjs.send(
+                    "service_jhux7p7",
+                    "template_9ncik9s",
+                    datosReporte,
+                    {
+                        publicKey: "plRwpursCVxAs4kYL"
+                    }
+                );
+
+                // Mostrar éxito solo después del envío
+                document.getElementById("generated-folio").innerText = folio;
+                mensajeExito.classList.remove("hidden");
+
+                // Actualizar contador de demostración
+                const pendientes = document.getElementById("stat-pendientes");
+
+                if (pendientes) {
+                    pendientes.innerText =
+                        (parseInt(pendientes.innerText, 10) || 0) + 1;
+                }
+
+                // Limpiar formulario e imágenes
+                formulario.reset();
+                document.getElementById("vista-previa").innerHTML = "";
+                errorImagenes.textContent = "";
+                errorImagenes.classList.add("hidden");
+
+                mensajeExito.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+
+            } catch (error) {
+                console.error("Error al enviar el reporte:", error);
+
+                alert(
+                    "No se pudo confirmar el envío del reporte. " +
+                    "Inténtalo nuevamente o contacta al equipo LUPA."
+                );
+
+            } finally {
+                // Restaurar botón
+                botonEnviar.disabled = false;
+                botonEnviar.innerHTML =
+                    '<i class="fa-solid fa-paper-plane" aria-hidden="true"></i>' +
+                    '<span>Enviar Reporte a Lupa DASC</span>';
+
+                botonEnviar.classList.remove(
+                    "opacity-60",
+                    "cursor-not-allowed"
+                );
+            }
+        }
+
+    </script>
+    <script>
+        function mostrarImagenes(event) {
+            const archivos = event.target.files;
+            const vistaPrevia = document.getElementById("vista-previa");
+            const error = document.getElementById("imagenes-error");
+
+            vistaPrevia.innerHTML = "";
+            error.textContent = "";
+            error.classList.add("hidden");
+
+            if (archivos.length > 3) {
+                error.textContent = "Solo puedes adjuntar hasta 3 imágenes.";
+                error.classList.remove("hidden");
+                event.target.value = "";
+                return;
+            }
+
+            for (const archivo of archivos) {
+                if (!["image/jpeg", "image/png", "image/webp"].includes(archivo.type)
+                    || archivo.size > 5 * 1024 * 1024) {
+
+                    error.textContent =
+                        "Solo se permiten imágenes JPG, PNG o WEBP de máximo 5 MB.";
+                    error.classList.remove("hidden");
+                    event.target.value = "";
+                    vistaPrevia.innerHTML = "";
+                    return;
+                }
+            }
+
+            for (const archivo of archivos) {
+                const lector = new FileReader();
+
+                lector.onload = function(e) {
+                    const imagen = document.createElement("img");
+                    imagen.src = e.target.result;
+                    imagen.alt = "Vista previa de " + archivo.name;
+                    imagen.className =
+                        "w-full h-32 object-cover rounded-lg border";
+
+                    vistaPrevia.appendChild(imagen);
+                };
+
+                lector.readAsDataURL(archivo);
+            }
+        }
+</script>
+</body>
+</html> 

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta Estudiantil - Lupa UABCS</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Chart.js para el modal de estadísticas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS compartido -->
+    <link rel="stylesheet" href="../style.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        uabcs: {
+                            gold: '#D4AF37',
+                            blue: '#002B49',
+                            lightBlue: '#1B4D7E',
+                            accent: '#E6B000',
+                            bgLight: '#F8FAFC'
+                        }
+                    },
+                    fontFamily: {
+                        dyslexic: ['OpenDyslexic', 'Arial', 'sans-serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-md border-b-4 border-uabcs-gold">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20 gap-3">
+                <a href="../index.html" class="flex items-center space-x-3 focus:outline-none" aria-label="Volver a la página principal de Lupa UABCS">
+                    <div class="bg-uabcs-blue text-uabcs-gold w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl shadow-inner border-2 border-uabcs-gold">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-extrabold tracking-tight text-uabcs-blue block leading-none">
+                            LUPA <span class="text-uabcs-gold">DASC</span>
+                        </span>
+                        <span class="text-xs text-slate-500 font-medium">Encuesta estudiantil</span>
+                    </div>
+                </a>
+                <a href="../index.html" class="inline-flex items-center space-x-2 text-sm font-bold text-uabcs-blue hover:text-uabcs-gold transition">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    <span class="hidden sm:inline">Volver al inicio</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <section id="encuesta" class="py-12">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                <div class="text-center mb-8">
+                    <span class="text-xs uppercase tracking-widest text-uabcs-gold font-extrabold">Diagnóstico Estudiantil</span>
+                    <h1 class="text-3xl font-extrabold text-uabcs-blue mt-1">Encuesta de Experiencia Universitaria UABCS</h1>
+                    <p class="text-slate-600 max-w-2xl mx-auto mt-2">Once preguntas para conocer cómo vives el campus. Los comentarios son opcionales y las respuestas se usan solo para mejorar la universidad.</p>
+
+                    <div class="mt-6">
+                        <button type="button" id="btn-estadisticas" class="inline-flex items-center justify-center gap-2 bg-white text-uabcs-blue font-bold px-6 py-3 rounded-lg border-2 border-uabcs-blue shadow-sm hover:bg-uabcs-blue hover:text-white transition duration-200">
+                            <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+                            <span>Ver estadísticas de la encuesta</span>
+                        </button>
+                    </div>
+                </div>
+
+                <form id="survey-form" novalidate class="bg-white rounded-2xl shadow-xl p-6 md:p-10 border border-slate-200 space-y-8">
+
+                    <!-- 1 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">1. ¿Qué semestre estás cursando actualmente? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid sm:grid-cols-2 gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="semestre" value="1" class="mt-1 accent-uabcs-blue"><span>Primer semestre</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="semestre" value="2" class="mt-1 accent-uabcs-blue"><span>Segundo semestre</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="semestre" value="3" class="mt-1 accent-uabcs-blue"><span>Tercer semestre</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="semestre" value="4" class="mt-1 accent-uabcs-blue"><span>Cuarto semestre</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="semestre" value="5" class="mt-1 accent-uabcs-blue"><span>Quinto semestre</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="semestre" value="6" class="mt-1 accent-uabcs-blue"><span>Sexto semestre</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="semestre" value="7" class="mt-1 accent-uabcs-blue"><span>Séptimo semestre</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="semestre" value="8" class="mt-1 accent-uabcs-blue"><span>Octavo semestre</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition sm:col-span-2"><input type="radio" name="semestre" value="9+" class="mt-1 accent-uabcs-blue"><span>Noveno semestre o más</span></label>
+                        </div>
+                    </fieldset>
+
+                    <!-- 2 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">2. ¿A qué departamento académico o carrera perteneces? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid sm:grid-cols-2 gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="carrera" value="IDS" class="mt-1 accent-uabcs-blue"><span>Ingeniería en Desarrollo de Software</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="carrera" value="IIA" class="mt-1 accent-uabcs-blue"><span>Ingeniería en Inteligencia Artificial</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="carrera" value="IC" class="mt-1 accent-uabcs-blue"><span>Ingeniería en Ciberseguridad</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="carrera" value="LTI" class="mt-1 accent-uabcs-blue"><span>Licenciatura en Tecnologías de la Información</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="carrera" value="ITC" class="mt-1 accent-uabcs-blue"><span>Ingeniería en Tecnología Computacional</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="carrera" value="LGTI" class="mt-1 accent-uabcs-blue"><span>Licenciatura en Gestión de Tecnologías de la Información</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition sm:col-span-2"><input type="radio" name="carrera" value="IRC" class="mt-1 accent-uabcs-blue"><span>Ingeniería en Redes y Comunicaciones</span></label>
+                        </div>
+                    </fieldset>
+
+                    <!-- 3 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">3. ¿Cuánto tiempo tardas en llegar de tu casa a la universidad (solo ida)? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid sm:grid-cols-2 gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="traslado_tiempo" value="menos_20" class="mt-1 accent-uabcs-blue"><span>Menos de 20 minutos</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="traslado_tiempo" value="20_40" class="mt-1 accent-uabcs-blue"><span>De 20 a 40 minutos</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="traslado_tiempo" value="40_60" class="mt-1 accent-uabcs-blue"><span>De 40 minutos a 1 hora</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="traslado_tiempo" value="mas_60" class="mt-1 accent-uabcs-blue"><span>Más de 1 hora</span></label>
+                        </div>
+                        <label for="q3_comentario" class="block text-sm font-semibold text-slate-600 mt-3">Escribe lo que opinas (opcional)</label>
+                        <textarea id="q3_comentario" name="traslado_tiempo_comentario" rows="2" class="w-full border border-slate-300 rounded-lg p-3 mt-1" placeholder="Opcional"></textarea>
+                    </fieldset>
+
+                    <!-- 4 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">4. ¿Cuál es tu principal medio de transporte para llegar al campus? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid sm:grid-cols-2 gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="transporte" value="publico" class="mt-1 accent-uabcs-blue"><span>Transporte público (camión / pesero)</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="transporte" value="propio" class="mt-1 accent-uabcs-blue"><span>Vehículo propio</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="transporte" value="app" class="mt-1 accent-uabcs-blue"><span>Raite / Uber / DiDi</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="transporte" value="activo" class="mt-1 accent-uabcs-blue"><span>Caminando o en bicicleta</span></label>
+                        </div>
+                        <label for="q4_comentario" class="block text-sm font-semibold text-slate-600 mt-3">Escribe lo que opinas (opcional)</label>
+                        <textarea id="q4_comentario" name="transporte_comentario" rows="2" class="w-full border border-slate-300 rounded-lg p-3 mt-1" placeholder="Opcional"></textarea>
+                    </fieldset>
+
+                    <!-- 5 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">5. En general, ¿cómo ha sido tu estadía en la universidad este semestre? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid sm:grid-cols-3 gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="estadia" value="bien" class="mt-1 accent-uabcs-blue"><span>Bien</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="estadia" value="mejorable" class="mt-1 accent-uabcs-blue"><span>Pudo haber sido mejor</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="estadia" value="mal" class="mt-1 accent-uabcs-blue"><span>Mal</span></label>
+                        </div>
+                        <label for="q5_comentario" class="block text-sm font-semibold text-slate-600 mt-3">Escribe lo que opinas (opcional)</label>
+                        <textarea id="q5_comentario" name="estadia_comentario" rows="2" class="w-full border border-slate-300 rounded-lg p-3 mt-1" placeholder="Opcional"></textarea>
+                    </fieldset>
+
+                    <!-- 6 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">6. ¿Cómo consideras las condiciones de las aulas, laboratorios y equipo de tu área (aire acondicionado, internet, computadoras, baños)? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="condiciones" value="excelentes" class="mt-1 accent-uabcs-blue"><span>Excelentes</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="condiciones" value="aceptables" class="mt-1 accent-uabcs-blue"><span>Aceptables, pero necesitan mantenimiento</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="condiciones" value="deficientes" class="mt-1 accent-uabcs-blue"><span>Deficientes</span></label>
+                        </div>
+                        <label for="q6_comentario" class="block text-sm font-semibold text-slate-600 mt-3">Escribe lo que opinas (opcional)</label>
+                        <textarea id="q6_comentario" name="condiciones_comentario" rows="2" class="w-full border border-slate-300 rounded-lg p-3 mt-1" placeholder="Opcional"></textarea>
+                    </fieldset>
+
+                    <!-- 7 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">7. ¿Qué tan fácil ha sido realizar trámites escolares o recibir atención administrativa este semestre? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid sm:grid-cols-2 gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="tramites" value="facil" class="mt-1 accent-uabcs-blue"><span>Muy fácil y rápido</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="tramites" value="normal" class="mt-1 accent-uabcs-blue"><span>Normal, con algo de espera</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="tramites" value="tardado" class="mt-1 accent-uabcs-blue"><span>Muy tardado o confuso</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="tramites" value="sin_tramites" class="mt-1 accent-uabcs-blue"><span>No he realizado trámites</span></label>
+                        </div>
+                        <label for="q7_comentario" class="block text-sm font-semibold text-slate-600 mt-3">Escribe lo que opinas (opcional)</label>
+                        <textarea id="q7_comentario" name="tramites_comentario" rows="2" class="w-full border border-slate-300 rounded-lg p-3 mt-1" placeholder="Opcional"></textarea>
+                    </fieldset>
+
+                    <!-- 8 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">8. ¿Qué tan seguro/a te sientes dentro de las instalaciones (especialmente en horarios de tarde o noche)? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid sm:grid-cols-3 gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="seguridad" value="muy_seguro" class="mt-1 accent-uabcs-blue"><span>Muy seguro/a</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="seguridad" value="algo_seguro" class="mt-1 accent-uabcs-blue"><span>Algo seguro/a</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="seguridad" value="inseguro" class="mt-1 accent-uabcs-blue"><span>Inseguro/a</span></label>
+                        </div>
+                        <label for="q8_comentario" class="block text-sm font-semibold text-slate-600 mt-3">Escribe lo que opinas (opcional)</label>
+                        <textarea id="q8_comentario" name="seguridad_comentario" rows="2" class="w-full border border-slate-300 rounded-lg p-3 mt-1" placeholder="Opcional"></textarea>
+                    </fieldset>
+
+                    <!-- 9 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">9. Durante este semestre, ¿sufriste o presenciaste algún tipo de acoso o discriminación por parte de algún profesor, estudiante o trabajador del campus? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid sm:grid-cols-3 gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="acoso" value="si" class="mt-1 accent-uabcs-blue"><span>Sí</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="acoso" value="no" class="mt-1 accent-uabcs-blue"><span>No</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="acoso" value="prefiero_no" class="mt-1 accent-uabcs-blue"><span>Prefiero no responder</span></label>
+                        </div>
+                        <p class="text-sm text-slate-500 mt-2">Tu respuesta es confidencial. Si necesitas apoyo inmediato, acude al área de Psicología o levanta un reporte en el buzón.</p>
+                        <label for="q9_comentario" class="block text-sm font-semibold text-slate-600 mt-3">Escribe lo que opinas (opcional)</label>
+                        <textarea id="q9_comentario" name="acoso_comentario" rows="2" class="w-full border border-slate-300 rounded-lg p-3 mt-1" placeholder="Opcional"></textarea>
+                    </fieldset>
+
+                    <!-- 10 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">10. Si pudieras mejorar una sola cosa de la universidad hoy mismo, ¿qué prioridad elegirías? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid sm:grid-cols-2 gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="prioridad" value="transporte" class="mt-1 accent-uabcs-blue"><span>Transporte y movilidad</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="prioridad" value="infraestructura" class="mt-1 accent-uabcs-blue"><span>Infraestructura y mantenimiento</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="prioridad" value="docencia" class="mt-1 accent-uabcs-blue"><span>Calidad docente y académica</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="prioridad" value="seguridad" class="mt-1 accent-uabcs-blue"><span>Seguridad en el campus</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="prioridad" value="areas_verdes" class="mt-1 accent-uabcs-blue"><span>Espacios de descanso y áreas verdes</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="prioridad" value="tramites" class="mt-1 accent-uabcs-blue"><span>Trámites y atención administrativa</span></label>
+                        </div>
+                        <label for="q10_comentario" class="block text-sm font-semibold text-slate-600 mt-3">Escribe lo que opinas (opcional)</label>
+                        <textarea id="q10_comentario" name="prioridad_comentario" rows="2" class="w-full border border-slate-300 rounded-lg p-3 mt-1" placeholder="Opcional"></textarea>
+                    </fieldset>
+
+                    <!-- 11 -->
+                    <fieldset>
+                        <legend class="block font-bold text-uabcs-blue mb-3">11. ¿Cómo fue el ambiente en tu aula? <span class="text-red-600" aria-hidden="true">*</span></legend>
+                        <div class="grid sm:grid-cols-2 gap-2">
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="ambiente_aula" value="buenos_amigos" class="mt-1 accent-uabcs-blue"><span>Conseguí buenos amigos</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"><input type="radio" name="ambiente_aula" value="nula" class="mt-1 accent-uabcs-blue"><span>Nula, me gustaría mejorar en ello</span></label>
+                            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition sm:col-span-2"><input type="radio" name="ambiente_aula" value="otra" class="mt-1 accent-uabcs-blue"><span>Otra</span></label>
+                        </div>
+                        <label for="ambiente_otra" class="block text-sm font-semibold text-slate-600 mt-3">Si elegiste "Otra", especifica (opcional)</label>
+                        <textarea id="ambiente_otra" name="ambiente_aula_otra" rows="2" class="w-full border border-slate-300 rounded-lg p-3 mt-1" placeholder="Opcional"></textarea>
+                    </fieldset>
+
+                    <div class="pt-2 border-t border-slate-200">
+                        <button type="submit" class="w-full bg-uabcs-blue hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition duration-200 text-lg flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+                            <span>Enviar Encuesta</span>
+                        </button>
+                        <p class="text-xs text-slate-500 mt-3 text-center">
+                            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                            Tus respuestas se guardan en el servidor de Lupa y se reflejan en las estadísticas públicas.
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-uabcs-blue text-white text-center text-sm py-6">
+        <p>Lupa UABCS · Departamento de Atención a la Comunidad Estudiantil</p>
+    </footer>
+
+    <script>
+        const PREGUNTAS_OBLIGATORIAS = [
+            ['semestre', '1. Semestre que cursas'],
+            ['carrera', '2. Departamento o carrera'],
+            ['traslado_tiempo', '3. Tiempo de traslado'],
+            ['transporte', '4. Medio de transporte'],
+            ['estadia', '5. Estadía en la universidad'],
+            ['condiciones', '6. Condiciones de aulas y equipo'],
+            ['tramites', '7. Trámites escolares'],
+            ['seguridad', '8. Seguridad en instalaciones'],
+            ['acoso', '9. Acoso o discriminación'],
+            ['prioridad', '10. Prioridad de mejora'],
+            ['ambiente_aula', '11. Ambiente en tu aula']
+        ];
+
+        const swalBase = { confirmButtonColor: '#002B49', cancelButtonColor: '#64748B' };
+
+        function validarEncuesta(form) {
+            const faltantes = [];
+
+            PREGUNTAS_OBLIGATORIAS.forEach(([campo, etiqueta]) => {
+                if (!form.querySelector(`input[name="${campo}"]:checked`)) {
+                    faltantes.push(etiqueta);
+                }
+            });
+
+            return faltantes;
+        }
+
+        document.getElementById('survey-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const faltantes = validarEncuesta(this);
+
+            if (faltantes.length) {
+                await Swal.fire({
+                    ...swalBase,
+                    icon: 'warning',
+                    title: 'Faltan respuestas',
+                    html: '<p class="mb-2">Contesta estas preguntas para enviar la encuesta:</p>' +
+                        '<ul style="text-align:left;list-style:disc;padding-left:1.25rem;">' +
+                        faltantes.map(item => `<li>${item}</li>`).join('') +
+                        '</ul>'
+                });
+                return;
+            }
+
+            const respuestas = {};
+            new FormData(this).forEach((valor, campo) => {
+                const texto = String(valor).trim();
+                if (texto) respuestas[campo] = texto;
+            });
+
+            Swal.fire({
+                ...swalBase,
+                title: 'Enviando encuesta...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                const enviar = fetch('/api/encuestas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(respuestas)
+                }).then(respuesta => respuesta.json().then(cuerpo => ({ ok: respuesta.ok, cuerpo })));
+
+                const resultado = await enviar;
+
+                if (!resultado.ok || !resultado.cuerpo.ok) {
+                    throw new Error(resultado.cuerpo.error || 'El servidor rechazó la encuesta.');
+                }
+
+                await Swal.fire({
+                    ...swalBase,
+                    icon: 'success',
+                    title: '¡Gracias por responder!',
+                    text: `Tus respuestas quedaron guardadas.`,
+                    confirmButtonText: 'Cerrar'
+                });
+
+                this.reset();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error al enviar la encuesta:', error);
+                Swal.fire({
+                    ...swalBase,
+                    icon: 'error',
+                    title: 'No se pudo guardar la encuesta',
+                    html: '<p>El servidor de Lupa no respondió.</p>' +
+                        '<p class="mt-2">Arranca el servidor con <code>python server.py</code> y vuelve a intentarlo.</p>' +
+                        `<p class="mt-2 text-sm">${error.message}</p>`,
+                    confirmButtonText: 'Entendido'
+                });
+            }
+        });
+    </script>
+
+    <script>
+        // ==========================================
+        // MODAL DE ESTADÍSTICAS DE LA ENCUESTA
+        // ==========================================
+        const ETIQUETAS_PREGUNTA = {
+            semestre: 'Semestre',
+            carrera: 'Carrera',
+            traslado_tiempo: 'Tiempo de traslado',
+            transporte: 'Transporte',
+            estadia: 'Estadía',
+            condiciones: 'Aulas y equipo',
+            tramites: 'Trámites',
+            seguridad: 'Seguridad',
+            acoso: 'Acoso o discriminación',
+            prioridad: 'Prioridad de mejora',
+            ambiente_aula: 'Ambiente en el aula'
+        };
+
+        // Etiquetas tomadas del propio formulario (mismo orden que los radios)
+        const OPCIONES_PREGUNTA = {};
+        document.querySelectorAll('#survey-form input[type="radio"]').forEach(input => {
+            const etiqueta = (input.closest('label')?.innerText || input.value).trim().replace(/\s+/g, ' ');
+            if (!OPCIONES_PREGUNTA[input.name]) OPCIONES_PREGUNTA[input.name] = [];
+            OPCIONES_PREGUNTA[input.name].push([input.value, etiqueta]);
+        });
+
+        let graficasModal = [];
+        let avisoCargando = null;
+
+        function valoresDe(pregunta, stats) {
+            const conteos = (stats.preguntas && stats.preguntas[pregunta]) || {};
+            return (OPCIONES_PREGUNTA[pregunta] || []).map(([valor]) => {
+                const numero = conteos[valor];
+                return typeof numero === 'number' && numero >= 0 ? numero : 0;
+            });
+        }
+
+        function filaResumen(pregunta, stats) {
+            const conteos = (stats.preguntas && stats.preguntas[pregunta]) || {};
+            let mejorValor = null;
+            let mejorConteo = 0;
+
+            (OPCIONES_PREGUNTA[pregunta] || []).forEach(([valor]) => {
+                const numero = conteos[valor] || 0;
+                if (numero > mejorConteo) {
+                    mejorConteo = numero;
+                    mejorValor = valor;
+                }
+            });
+
+            if (!mejorValor || !mejorConteo) return '';
+
+            const etiqueta = (OPCIONES_PREGUNTA[pregunta].find(([v]) => v === mejorValor) || [, mejorValor])[1];
+            const porcentaje = Math.round((mejorConteo / stats.total) * 100);
+
+            return `
+                <div class="border border-slate-200 rounded-lg p-3 bg-white">
+                    <p class="text-[11px] uppercase tracking-wide text-slate-500 font-bold">${ETIQUETAS_PREGUNTA[pregunta]}</p>
+                    <p class="text-sm font-semibold text-slate-800 leading-snug mt-0.5">${etiqueta}</p>
+                    <div class="h-1.5 bg-slate-200 rounded-full mt-2" role="presentation">
+                        <div class="h-1.5 bg-uabcs-gold rounded-full" style="width:${porcentaje}%"></div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">${mejorConteo} de ${stats.total} respuestas · ${porcentaje}%</p>
+                </div>`;
+        }
+
+        function htmlEstadisticas(stats) {
+            const resumen = Object.keys(ETIQUETAS_PREGUNTA)
+                .map(pregunta => filaResumen(pregunta, stats))
+                .filter(Boolean)
+                .join('');
+
+            return `
+                <div class="text-left font-sans">
+                    <div class="grid grid-cols-2 gap-3 mb-5">
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
+                            <p class="text-3xl font-black text-uabcs-blue leading-none">${stats.total}</p>
+                            <p class="text-[11px] uppercase font-bold text-slate-500 mt-2">Respuestas registradas</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
+                            <p class="text-3xl font-black text-uabcs-blue leading-none">${stats.comentarios || 0}</p>
+                            <p class="text-[11px] uppercase font-bold text-slate-500 mt-2">Comentarios escritos</p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div>
+                            <p class="text-sm font-bold text-uabcs-blue mb-2">Prioridades de mejora elegidas</p>
+                            <div style="position:relative;height:220px">
+                                <canvas id="modal-prioridad" aria-label="Prioridades de mejora de la encuesta" role="img"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-uabcs-blue mb-2">Percepción del semestre</p>
+                            <div style="position:relative;height:220px">
+                                <canvas id="modal-estadia" aria-label="Percepción del semestre de la encuesta" role="img"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-sm font-bold text-uabcs-blue mt-6 mb-2">Respuesta más elegida por pregunta</p>
+                    <div class="grid sm:grid-cols-2 gap-3">${resumen}</div>
+                </div>`;
+        }
+
+        function pintarGraficasModal(stats) {
+            if (typeof Chart === 'undefined') return;
+
+            graficasModal.forEach(grafica => grafica.destroy());
+            graficasModal = [];
+
+            const prioridad = document.getElementById('modal-prioridad');
+            const estadia = document.getElementById('modal-estadia');
+
+            if (prioridad) {
+                graficasModal.push(new Chart(prioridad.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: OPCIONES_PREGUNTA.prioridad.map(([, etiqueta]) => etiqueta.replace('Espacios de descanso y áreas verdes', 'Áreas verdes')),
+                        datasets: [{
+                            label: 'Votos',
+                            data: valoresDe('prioridad', stats),
+                            borderColor: '#002B49',
+                            backgroundColor: 'rgba(0, 43, 73, 0.12)',
+                            pointBackgroundColor: '#D4AF37',
+                            pointBorderColor: '#002B49',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            borderWidth: 3,
+                            tension: 0.35,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { precision: 0 } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                }));
+            }
+
+            if (estadia) {
+                graficasModal.push(new Chart(estadia.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: OPCIONES_PREGUNTA.estadia.map(([, etiqueta]) => etiqueta),
+                        datasets: [{
+                            data: valoresDe('estadia', stats),
+                            backgroundColor: ['#10B981', '#F59E0B', '#002B49'],
+                            borderColor: '#FFFFFF',
+                            borderWidth: 2,
+                            hoverOffset: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '55%',
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                }));
+            }
+        }
+
+        document.getElementById('btn-estadisticas').addEventListener('click', async function () {
+            avisoCargando = Swal.fire({
+                ...swalBase,
+                title: 'Cargando estadísticas...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            let stats;
+
+            try {
+                const respuesta = await fetch('/api/encuestas/stats', { headers: { Accept: 'application/json' } });
+                if (!respuesta.ok) throw new Error(`El servidor respondió ${respuesta.status}.`);
+                stats = await respuesta.json();
+            } catch (error) {
+                Swal.fire({
+                    ...swalBase,
+                    icon: 'error',
+                    title: 'No se pudieron cargar las estadísticas',
+                    html: '<p>Arranca el servidor con <code>python server.py</code> y vuelve a intentarlo.</p>' +
+                        `<p class="mt-2 text-sm">${error.message}</p>`
+                });
+                return;
+            }
+
+            if (!stats.total) {
+                Swal.fire({
+                    ...swalBase,
+                    icon: 'info',
+                    title: 'Aún no hay respuestas',
+                    text: 'Cuando alguien conteste la encuesta, aquí verás las gráficas y los promedios.'
+                });
+                return;
+            }
+
+            Swal.fire({
+                ...swalBase,
+                title: 'Estadísticas de la encuesta',
+                width: 920,
+                html: htmlEstadisticas(stats),
+                confirmButtonText: 'Cerrar',
+                showCloseButton: true,
+                didOpen: () => pintarGraficasModal(stats),
+                willClose: () => {
+                    graficasModal.forEach(grafica => grafica.destroy());
+                    graficasModal = [];
+                }
+            });
+        });
+    </script>
+</body>
+</html>

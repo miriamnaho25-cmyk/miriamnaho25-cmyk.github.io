@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#071b45">
+    <title>Nuevo reporte - Lupa DASC</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --navy: #071b45;
+            --royal: #173caa;
+            --blue: #2455c8;
+            --green: #218c78;
+            --mint: #e8f5f0;
+            --text: #14243e;
+            --muted: #66758b;
+            --border: #e3e9f2;
+            --background: #f7f9fc;
+            --amber: #c18a32;
+            font-family: "DM Sans", "Segoe UI", Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        @font-face {
+            font-family: "OpenDyslexic";
+            src: url("https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.woff") format("woff");
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        :focus-visible {
+            outline: 3px solid #d4af37;
+            outline-offset: 3px;
+        }
+
+        .accessibility-bar {
+            padding: 10px 20px;
+            background: var(--navy);
+            color: white;
+        }
+
+        .accessibility-inner,
+        .header-inner,
+        .footer-inner {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .accessibility-inner {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .accessibility-bar button {
+            border: 1px solid #8192b3;
+            border-radius: 7px;
+            padding: 7px 10px;
+            background: #ffffff12;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .accessibility-bar button:hover {
+            background: #ffffff28;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            border-bottom: 1px solid var(--border);
+            background: white;
+        }
+
+        .header-inner {
+            min-height: 82px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--navy);
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 44px;
+            height: 44px;
+            border: 2px solid #d4af37;
+            border-radius: 50%;
+            background: var(--navy);
+            color: #d4af37;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .brand strong {
+            display: block;
+            font-family: "Manrope", "Segoe UI", Arial, sans-serif;
+            font-size: 19px;
+            letter-spacing: .2px;
+        }
+
+        .brand small {
+            display: block;
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .back-link {
+            color: var(--royal);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .ticket-main {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 58px 0 70px;
+            flex: 1;
+        }
+
+        .form-layout {
+            display: grid;
+            grid-template-columns: .85fr 1.15fr;
+            align-items: start;
+            gap: 48px;
+        }
+
+        .intro {
+            padding-top: 15px;
+        }
+
+        .eyebrow,
+        .field label,
+        .upload-title {
+            font-weight: 800;
+        }
+
+        .eyebrow {
+            color: var(--green);
+            font-size: 11px;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+        }
+
+        .intro h1 {
+            margin: 12px 0;
+            color: var(--navy);
+            font-family: "Manrope", "Segoe UI", Arial, sans-serif;
+            font-size: clamp(29px, 4vw, 40px);
+            line-height: 1.2;
+            letter-spacing: -1px;
+        }
+
+        .intro-copy {
+            max-width: 430px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .notice {
+            margin-top: 26px;
+            padding: 17px 18px;
+            border-left: 3px solid var(--green);
+            border-radius: 0 10px 10px 0;
+            background: var(--mint);
+            color: #315e57;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .form-card {
+            padding: 32px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: white;
+            box-shadow: 0 15px 45px #071b4510;
+        }
+
+        .form-card h2 {
+            margin: 0;
+            color: var(--navy);
+            font-family: "Manrope", "Segoe UI", Arial, sans-serif;
+            font-size: 22px;
+        }
+
+        .form-description {
+            margin: 8px 0 22px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .field {
+            margin-top: 20px;
+        }
+
+        .field label,
+        .field legend {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .field input[type="text"],
+        .field select,
+        .field textarea {
+            display: block;
+            width: 100%;
+            min-height: 46px;
+            padding: 12px 14px;
+            border: 1px solid #d8e0ed;
+            border-radius: 9px;
+            outline: none;
+            background: white;
+            color: var(--text);
+            font-size: 14px;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .field input[type="text"]:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--royal);
+            box-shadow: 0 0 0 3px #2455c81a;
+        }
+
+        .field textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .field-hint,
+        .upload-hint {
+            margin: 7px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .radio-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .field .radio-option {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 8px;
+            margin: 0 !important;
+            font-weight: 600 !important;
+        }
+
+        .radio-option input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--royal);
+        }
+
+        .image-upload {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px dashed #a9b8d2;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f8faff, #f1f6ff);
+        }
+
+        .upload-title {
+            display: block;
+            color: var(--navy);
+            font-size: 13px;
+        }
+
+        .upload-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .upload-actions button,
+        .remove-image {
+            border: 1px solid #d5deed;
+            border-radius: 9px;
+            padding: 10px 14px;
+            background: white;
+            color: var(--navy);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .upload-actions button:hover,
+        .remove-image:hover {
+            border-color: var(--royal);
+            color: var(--royal);
+        }
+
+        .image-preview {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .image-preview img {
+            display: block;
+            width: 100%;
+            max-height: 230px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .image-preview-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .remove-image {
+            padding: 7px 10px;
+            color: #a33b43;
+        }
+
+        .submit-button {
+            width: 100%;
+            margin-top: 24px;
+            border: 0;
+            border-radius: 9px;
+            padding: 14px 20px;
+            background: var(--royal);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            transition: background .2s, transform .2s, opacity .2s;
+        }
+
+        .submit-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: #102f8d;
+        }
+
+        .submit-button:disabled {
+            cursor: wait;
+            opacity: .65;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 9px;
+            background: var(--mint);
+            color: #236e5e;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .feedback.error {
+            background: #fff0f0;
+            color: #9b3038;
+        }
+
+        .site-footer {
+            padding: 26px 0;
+            background: #061635;
+            color: #b4c3df;
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-inner strong {
+            color: white;
+        }
+
+        .footer-inner p {
+            margin: 5px 0 0;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        body.dyslexic-mode,
+        body.dyslexic-mode * {
+            font-family: "OpenDyslexic", Arial, sans-serif !important;
+            letter-spacing: .035em;
+            line-height: 1.7;
+        }
+
+        body.high-contrast {
+            background: #000;
+            color: #ff0;
+        }
+
+        body.high-contrast .site-header,
+        body.high-contrast .form-card,
+        body.high-contrast .image-upload,
+        body.high-contrast .notice {
+            border: 1px solid #ff0;
+            background: #111;
+            color: #fff;
+        }
+
+        body.high-contrast .intro h1,
+        body.high-contrast .form-card h2,
+        body.high-contrast .field label,
+        body.high-contrast .field legend,
+        body.high-contrast .upload-title,
+        body.high-contrast .brand,
+        body.high-contrast .brand small,
+        body.high-contrast .intro-copy,
+        body.high-contrast .field-hint,
+        body.high-contrast .upload-hint {
+            color: #ff0;
+        }
+
+        body.high-contrast input,
+        body.high-contrast select,
+        body.high-contrast textarea {
+            border-color: #ff0;
+            background: #000;
+            color: #ff0;
+        }
+
+        body.high-contrast .site-footer {
+            border-top: 1px solid #ff0;
+            background: #111;
+            color: #ff0;
+        }
+
+        @media (max-width: 850px) {
+            .form-layout {
+                grid-template-columns: 1fr;
+                gap: 28px;
+            }
+
+            .intro {
+                padding-top: 0;
+            }
+
+            .intro-copy {
+                max-width: 650px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .accessibility-inner,
+            .header-inner,
+            .footer-inner,
+            .ticket-main {
+                width: min(100% - 24px, 1120px);
+            }
+
+            .accessibility-inner {
+                justify-content: center;
+            }
+
+            .header-inner {
+                min-height: 72px;
+            }
+
+            .brand strong {
+                font-size: 16px;
+            }
+
+            .brand small {
+                font-size: 10px;
+            }
+
+            .back-link {
+                font-size: 12px;
+            }
+
+            .ticket-main {
+                padding: 38px 0 48px;
+            }
+
+            .form-card {
+                padding: 22px 18px;
+            }
+
+            .footer-inner {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="accessibility-bar" aria-label="Herramientas de accesibilidad">
+        <div class="accessibility-inner">
+            <button type="button" onclick="changeFont(1)" aria-label="Aumentar texto">A+</button>
+            <button type="button" onclick="changeFont(-1)" aria-label="Disminuir texto">A-</button>
+            <button type="button" id="contrastButton" onclick="toggleContrast()" aria-pressed="false">Alto contraste</button>
+            <button type="button" id="fontButton" onclick="toggleDyslexicFont()" aria-pressed="false">Lectura fácil</button>
+        </div>
+    </div>
+
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="index.html" aria-label="Lupa DASC, regresar al inicio">
+                <span class="brand-mark" aria-hidden="true">L</span>
+                <span>
+                    <strong>LUPA DASC</strong>
+                    <small>Participación estudiantil</small>
+                </span>
+            </a>
+            <a class="back-link" href="index.html">Regresar al inicio</a>
+        </div>
+    </header>
+
+    <main class="ticket-main">
+        <div class="form-layout">
+            <section class="intro" aria-labelledby="page-title">
+                <span class="eyebrow">Participación estudiantil</span>
+                <h1 id="page-title">Tu opinión importa.</h1>
+                <p class="intro-copy">
+                    Ayúdanos a identificar las principales necesidades de nuestra comunidad.
+                    Cada reporte permite comprender mejor los problemas y propuestas del DASC.
+                </p>
+                <div class="notice">
+                    Tu reporte queda vinculado a tu cuenta institucional para que los administradores
+                    puedan dar seguimiento. La comunidad no puede consultar reportes ni identidades;
+                    únicamente verá estadísticas agrupadas.
+                </div>
+            </section>
+
+            <section class="form-card" aria-labelledby="form-title">
+                <h2 id="form-title">Nuevo reporte o sugerencia</h2>
+                <p class="form-description">
+                    Completa los campos. Los marcados con * son obligatorios.
+                </p>
+
+                <form id="reportForm">
+                    <div class="field">
+                        <label for="category">Categoría *</label>
+                        <select id="category" name="category" required>
+                            <option value="">Selecciona una categoría</option>
+                            <option>Equipos de cómputo</option>
+                            <option>Internet y conectividad</option>
+                            <option>Software y licencias</option>
+                            <option>Laboratorios y aulas</option>
+                            <option>Docencia y asesorías</option>
+                            <option>Infraestructura</option>
+                            <option>Accesibilidad</option>
+                            <option>Proyectos estudiantiles</option>
+                            <option>Acoso</option>
+                            <option>Otra sugerencia</option>
+                        </select>
+                    </div>
+
+                    <fieldset class="field" style="border:0;padding:0">
+                        <legend class="field label">Tipo de participación *</legend>
+                        <div class="radio-row">
+                            <label class="radio-option">
+                                <input type="radio" name="kind" value="Problemática" required checked>
+                                Problemática
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="kind" value="Sugerencia">
+                                Sugerencia
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <div class="field">
+                        <label for="subject">Título *</label>
+                        <input type="text" id="subject" name="subject" maxlength="100"
+                               placeholder="Ej. Fallas en las computadoras" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="description">Descripción *</label>
+                        <textarea id="description" name="description" maxlength="1200"
+                                  aria-describedby="descriptionHint"
+                                  placeholder="Describe el problema o tu propuesta..." required></textarea>
+                        <p class="field-hint" id="descriptionHint">
+                            Máximo 1,200 caracteres. Incluye detalles útiles y evita datos personales.
+                        </p>
+                    </div>
+
+                    <div class="field">
+                        <label for="location">Ubicación (opcional)</label>
+                        <input type="text" id="location" name="location" maxlength="120"
+                               placeholder="Ej. Laboratorio de cómputo">
+                    </div>
+
+                    <div class="image-upload">
+                        <span class="upload-title">Agrega una foto (opcional)</span>
+                        <p class="upload-hint">
+                            JPG, PNG o WebP; máximo 12 MB. La imagen optimizada se guarda de forma privada.
+                        </p>
+                        <div class="upload-actions">
+                            <button type="button" id="cameraButton">Tomar foto</button>
+                            <button type="button" id="galleryButton">Elegir imagen</button>
+                        </div>
+                        <input type="file" id="cameraInput" accept="image/jpeg,image/png,image/webp"
+                               capture="environment" hidden>
+                        <input type="file" id="galleryInput" accept="image/jpeg,image/png,image/webp" hidden>
+
+                        <div class="image-preview" id="imagePreview">
+                            <img id="previewImage" alt="Vista previa de la foto seleccionada">
+                            <div class="image-preview-meta">
+                                <span id="imageFileName"></span>
+                                <button type="button" class="remove-image" id="removeImageButton">Quitar foto</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="submit-button" type="submit" id="reportSubmit" disabled>
+                        Registrar reporte
+                    </button>
+                    <div class="feedback" id="feedback" role="status" aria-live="polite" tabindex="-1">
+                        Verificando tu cuenta institucional...
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>
+                <strong>LUPA DASC</strong>
+                <p>Departamento Académico de Sistemas Computacionales · UABCS</p>
+            </div>
+            <p>Prototipo estudiantil de participación.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        const reportForm = document.getElementById("reportForm");
+        const reportSubmit = document.getElementById("reportSubmit");
+        const feedback = document.getElementById("feedback");
+        const cameraInput = document.getElementById("cameraInput");
+        const galleryInput = document.getElementById("galleryInput");
+        let selectedPhoto = null;
+        let currentUser = null;
+        let sessionReady = false;
+        let supabaseClient = null;
+
+        function getSupabaseClient() {
+            const config = window.LUPA_SUPABASE_CONFIG;
+            if (!window.supabase) {
+                throw new Error("No se pudo cargar Supabase. Revisa tu conexión a internet e inténtalo otra vez.");
+            }
+            if (!config || !config.url || !config.publishableKey) {
+                throw new Error("Falta configurar la URL y la clave pública de Supabase en supabase-config.js.");
+            }
+            if (!supabaseClient) {
+                supabaseClient = window.supabase.createClient(config.url, config.publishableKey);
+            }
+            return supabaseClient;
+        }
+
+        function showFeedback(message, isError) {
+            feedback.textContent = message;
+            feedback.classList.toggle("error", Boolean(isError));
+            feedback.hidden = false;
+        }
+
+        function createReportId() {
+            if (window.crypto && typeof window.crypto.randomUUID === "function") {
+                return window.crypto.randomUUID();
+            }
+
+            const bytes = new Uint8Array(16);
+            if (window.crypto && typeof window.crypto.getRandomValues === "function") {
+                window.crypto.getRandomValues(bytes);
+            } else {
+                bytes.forEach((_, index) => {
+                    bytes[index] = Math.floor(Math.random() * 256);
+                });
+            }
+            bytes[6] = (bytes[6] & 0x0f) | 0x40;
+            bytes[8] = (bytes[8] & 0x3f) | 0x80;
+            const hex = Array.from(bytes, value => value.toString(16).padStart(2, "0")).join("");
+            return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+        }
+
+        function createFolio() {
+            const timestamp = Date.now().toString(36).toUpperCase();
+            const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
+            return `DASC-${timestamp}-${suffix}`;
+        }
+
+        function prepareImage(file) {
+            return new Promise((resolve, reject) => {
+                const sourceUrl = URL.createObjectURL(file);
+                const image = new Image();
+
+                image.onload = () => {
+                    URL.revokeObjectURL(sourceUrl);
+                    try {
+                        const maxDimension = 1280;
+                        const scale = Math.min(
+                            1,
+                            maxDimension / Math.max(image.naturalWidth, image.naturalHeight)
+                        );
+                        const canvas = document.createElement("canvas");
+                        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+                        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+
+                        const context = canvas.getContext("2d");
+                        if (!context) {
+                            reject(new Error("No fue posible preparar la imagen."));
+                            return;
+                        }
+
+                        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob(blob => {
+                            if (!blob) {
+                                reject(new Error("No fue posible preparar la imagen."));
+                            } else if (blob.size > 900000) {
+                                reject(new Error("La foto optimizada sigue siendo muy pesada; prueba otra imagen."));
+                            } else {
+                                resolve(blob);
+                            }
+                        }, "image/jpeg", 0.68);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                image.onerror = () => {
+                    URL.revokeObjectURL(sourceUrl);
+                    reject(new Error("No se pudo leer la imagen."));
+                };
+                image.src = sourceUrl;
+            });
+        }
+
+        function clearSelectedImage() {
+            if (selectedPhoto) {
+                URL.revokeObjectURL(selectedPhoto.previewUrl);
+            }
+            selectedPhoto = null;
+            cameraInput.value = "";
+            galleryInput.value = "";
+            document.getElementById("imagePreview").style.display = "none";
+            document.getElementById("previewImage").removeAttribute("src");
+            document.getElementById("imageFileName").textContent = "";
+        }
+
+        async function handleImageSelection(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+                event.target.value = "";
+                showFeedback("Selecciona una imagen JPG, PNG o WebP.", true);
+                return;
+            }
+
+            if (file.size > 12 * 1024 * 1024) {
+                event.target.value = "";
+                showFeedback("La imagen debe pesar menos de 12 MB.", true);
+                return;
+            }
+
+            reportSubmit.disabled = true;
+            showFeedback("Preparando la foto...");
+
+            try {
+                const blob = await prepareImage(file);
+                if (selectedPhoto) URL.revokeObjectURL(selectedPhoto.previewUrl);
+                selectedPhoto = {
+                    blob,
+                    name: file.name,
+                    previewUrl: URL.createObjectURL(blob)
+                };
+                document.getElementById("previewImage").src = selectedPhoto.previewUrl;
+                document.getElementById("imageFileName").textContent = file.name;
+                document.getElementById("imagePreview").style.display = "block";
+                showFeedback("Foto lista para adjuntarse al reporte.");
+            } catch (error) {
+                showFeedback(error.message, true);
+            } finally {
+                reportSubmit.disabled = !sessionReady;
+                event.target.value = "";
+            }
+        }
+
+        document.getElementById("cameraButton").addEventListener("click", () => cameraInput.click());
+        document.getElementById("galleryButton").addEventListener("click", () => galleryInput.click());
+        document.getElementById("removeImageButton").addEventListener("click", clearSelectedImage);
+        cameraInput.addEventListener("change", handleImageSelection);
+        galleryInput.addEventListener("change", handleImageSelection);
+
+        reportForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            feedback.hidden = true;
+
+            if (!sessionReady || !currentUser) {
+                showFeedback("Espera a que se verifique tu cuenta antes de enviar el reporte.", true);
+                return;
+            }
+
+            const category = document.getElementById("category").value;
+            const subject = document.getElementById("subject").value.trim();
+            const description = document.getElementById("description").value.trim();
+            const kind = document.querySelector('input[name="kind"]:checked');
+
+            if (!category || !subject || !description || !kind) {
+                showFeedback("Completa los campos obligatorios antes de continuar.", true);
+                return;
+            }
+
+            reportSubmit.disabled = true;
+            let uploadedImagePath = null;
+            const reportId = createReportId();
+            const report = {
+                id: reportId,
+                folio: createFolio(),
+                sender_id: currentUser.id,
+                category,
+                kind: kind.value,
+                subject,
+                description,
+                location: document.getElementById("location").value.trim(),
+                status: "Pendiente",
+                anonymous_to_community: true
+            };
+
+            try {
+                const client = getSupabaseClient();
+                const { data: userData, error: userError } = await client.auth.getUser();
+                if (userError) throw userError;
+                if (!userData.user || userData.user.id !== currentUser.id) {
+                    window.location.assign("login.html");
+                    return;
+                }
+
+                if (selectedPhoto) {
+                    uploadedImagePath = `${currentUser.id}/${reportId}.jpg`;
+                    const { error: uploadError } = await client.storage
+                        .from("report-images")
+                        .upload(uploadedImagePath, selectedPhoto.blob, {
+                            contentType: "image/jpeg",
+                            upsert: false
+                        });
+                    if (uploadError) throw uploadError;
+                    report.image_path = uploadedImagePath;
+                }
+
+                const { error: insertError } = await client.from("reports").insert(report);
+                if (insertError) throw insertError;
+
+                reportForm.reset();
+                clearSelectedImage();
+                showFeedback(`Reporte ${report.folio} enviado correctamente. Solo los administradores pueden consultar su contenido e identidad.`);
+                feedback.focus();
+                if ("BroadcastChannel" in window) {
+                    const channel = new BroadcastChannel("lupa-report-stats");
+                    channel.postMessage({ type: "stats-updated" });
+                    channel.close();
+                }
+            } catch (error) {
+                if (uploadedImagePath) {
+                    try {
+                        const { error: cleanupError } = await getSupabaseClient()
+                            .storage.from("report-images").remove([uploadedImagePath]);
+                        if (cleanupError) throw cleanupError;
+                    } catch (cleanupError) {
+                        showFeedback(
+                            `No se guardó el reporte (${error.message}) y no se pudo quitar la foto privada (${cleanupError.message}).`,
+                            true
+                        );
+                        return;
+                    }
+                }
+                showFeedback(`No se pudo guardar el reporte. ${error.message}`, true);
+            } finally {
+                reportSubmit.disabled = !sessionReady;
+            }
+        });
+
+        async function initializeTicketPage() {
+            try {
+                const client = getSupabaseClient();
+                const { data: sessionData, error: sessionError } = await client.auth.getSession();
+                if (sessionError) throw sessionError;
+                if (!sessionData.session) {
+                    window.location.assign("login.html");
+                    return;
+                }
+
+                const { data: profile, error: profileError } = await client
+                    .from("profiles")
+                    .select("role")
+                    .eq("id", sessionData.session.user.id)
+                    .single();
+                if (profileError) throw profileError;
+                if (profile.role !== "student") {
+                    window.location.assign(profile.role === "admin" ? "admin.html" : "login.html");
+                    return;
+                }
+
+                currentUser = sessionData.session.user;
+                sessionReady = true;
+                reportSubmit.disabled = false;
+                feedback.hidden = true;
+            } catch (error) {
+                showFeedback(`No se pudo verificar tu sesión. ${error.message}`, true);
+            }
+        }
+
+        initializeTicketPage();
+
+        let fontSize = 100;
+        function changeFont(amount) {
+            fontSize = Math.max(90, Math.min(130, fontSize + amount * 10));
+            document.documentElement.style.fontSize = `${fontSize}%`;
+        }
+
+        function toggleContrast() {
+            const active = document.body.classList.toggle("high-contrast");
+            document.getElementById("contrastButton").setAttribute("aria-pressed", String(active));
+        }
+
+        function toggleDyslexicFont() {
+            const active = document.body.classList.toggle("dyslexic-mode");
+            document.getElementById("fontButton").setAttribute("aria-pressed", String(active));
+        }
+    </script>
+</body>
+</html>

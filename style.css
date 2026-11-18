@@ -1,0 +1,56 @@
+/* ==========================================
+   ESTILOS DE ACCESIBILIDAD Y COMPONENTES
+   ========================================== */
+
+.high-contrast {
+    background-color: #000000 !important;
+    color: #FFFF00 !important;
+}
+
+.high-contrast a,
+.high-contrast button {
+    color: #00FFFF !important;
+    border-color: #FFFF00 !important;
+}
+
+.high-contrast .bg-white,
+.high-contrast .bg-gray-50,
+.high-contrast .bg-uabcs-blue {
+    background-color: #111111 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #FFFF00 !important; 
+}
+
+@font-face {
+    font-family: 'OpenDyslexic';
+    src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.font-dyslexic-mode {
+    font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+.carousel-slide {
+    transition: transform 0.5s ease-in-out;
+}
+
+*:focus-visible {
+    outline: 3px solid #D4AF37 !important;
+    outline-offset: 3px !important;
+} 
+/* Mascota: pequeño movimiento suave */
+.mascota-flotante {
+    animation: flotar 3s ease-in-out infinite;
+}
+
+@keyframes flotar {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+}
+
+/* Accesibilidad: si la persona pidió menos movimiento, se queda quieta */
+@media (prefers-reduced-motion: reduce) {
+    .mascota-flotante { animation: none; }
+}
